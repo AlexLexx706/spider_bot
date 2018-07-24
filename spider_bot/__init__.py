@@ -5,33 +5,59 @@ from engine_3d import scene
 from engine_3d import box
 from engine_3d import bone
 from engine_3d import cylinder
-
+from engine_3d import shape
 
 class SpiderBot(box.Box):
+    '''
+    Spider bot model
+    '''
     leg_width = 3
-    leg_radius = 2
-    leg_circle_1_lenght = 4
+    cylinder_radius = 1
+    cylinder_lenght = 4
+    shoulder_lenght = 10
+    forearm_lenght = 10
 
     def __init__(self, length=10, width=10, height=3):
-        box.Box.__init__(self, length=length, width=width, height=height)
-        self.center = bone.Bone(parent=self)
+        box.Box.__init__(
+            self,
+            length=length,
+            width=width,
+            height=height,
+            offset=(0, height / 2, 0))
+
+        # 1. left_front_leg
         self.leg_left_front_0 = cylinder.Cylinder(
             parent=self,
-            radius=self.leg_radius,
-            length=self.leg_circle_1_lenght,
             axis=(0, 1, 0),
-            up=(-1, 0, 0),
-            pos=(
-                length / 2.0 - self.leg_width / 2.0,
-                -self.leg_circle_1_lenght / 2.0,
-                -width / 2.0))
+            radius=self.cylinder_radius,
+            length=self.cylinder_lenght,
+            pos=(length / 2, 0, -width / 2))
 
-        # self.leg_left_front_1 = box.Box(
-        #     parent=self.leg_left_front_0,
-        #     pos=(0, 0, 0),
-        #     lenght=self.leg_width,
-        #     height=self.leg_width,
-        #     width=20)
+        # self.leg_left_front_0.visible = False
+
+        self.leg_left_front_1 = cylinder.Cylinder(
+            parent=self.leg_left_front_0,
+            axis=(0, -1, 0),
+            up=(-1, 0, 0),
+            radius=self.cylinder_radius,
+            length=self.cylinder_lenght,
+            offset=(-self.cylinder_lenght / 2, 0, 0))
+
+        self.leg_left_front_2 = cylinder.Cylinder(
+            parent=self.leg_left_front_1,
+            radius=self.cylinder_radius,
+            length=self.cylinder_lenght,
+            offset=(-self.cylinder_lenght / 2, 0, 0),
+            pos=(0, 0, self.shoulder_lenght))
+
+        self.leg_left_front_end = shape.Shape(
+            parent=self.leg_left_front_2,
+            pos=(0, 0, self.forearm_lenght))
+        self.leg_left_front_end.center_length = 2
+
+        self.leg_left_front_0.rotate(0.5, (0, 1, 0))
+        self.leg_left_front_1.rotate(0.5, (0, 1, 0))
+        self.leg_left_front_2.rotate(-0.5, (1, 0, 0))
 
 
 class MyScene(scene.Scene):
@@ -43,6 +69,7 @@ class MyScene(scene.Scene):
         self.camera.eye.pos[2] = 150
         self.camera.rotate_camera(1, -1)
         self.bot = SpiderBot()
+        self.bot.pos = (10, 0, 0)
 
 
 def main():
