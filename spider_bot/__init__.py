@@ -44,13 +44,11 @@ class Leg(shape.Shape):
         # self.p_2.ang_x = 0.1
 
     def move_end(self, pos):
-        # print('move_end pos:%s' % (pos,))
-
         # 1. calk p_0 angle - vertical angle
-        self.p_0.ang_y = self.p_0.get_proj_angle(
+        self.p_0.ang_y = self.get_proj_angle(
             self.o_z,
             self.o_x,
-            self.p_0.world_to_frame(pos))
+            self.world_to_frame(pos))
 
         # 2. calk tiangle
         cur_pos = self.p_0.world_to_frame(pos)
