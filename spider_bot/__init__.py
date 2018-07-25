@@ -67,6 +67,9 @@ class Leg(shape.Shape):
             (len_b * len_b + len_a * len_a - len_c * len_c) /
             (2 * len_a * len_b))
 
+        # print('control angles: %s, %s, %s' % (
+        #     self.p_0.ang_y, self.p_1.ang_x, self.p_2.ang_x))
+
 
 class SpiderBot(box.Box):
     '''
@@ -93,20 +96,73 @@ class SpiderBot(box.Box):
             parent=self,
             pos=(length / 2.0, 0.0, width / 2.0))
 
-        self.point_center = (length / 2, 0, width / 2 + 15)
-        self.test_point = sphere.Sphere(
+        self.front_left_leg = Leg(
             parent=self,
-            pos=self.point_center)
+            axis=(-1, 0, 0),
+            pos=(length / 2.0, 0.0, -width / 2.0))
+
+        self.rear_left_leg = Leg(
+            parent=self,
+            pos=(-length / 2.0, 0.0, width / 2.0))
+
+        self.rear_right_leg = Leg(
+            parent=self,
+            axis=(-1, 0, 0),
+            pos=(-length / 2.0, 0.0, -width / 2.0))
+
+        self.point_center_1 = (length / 2, 0, width / 2 + 15)
+        self.test_point_1 = sphere.Sphere(
+            parent=self,
+            pos=self.point_center_1)
+
+        self.point_center_2 = (length / 2, 0, -(width / 2 + 15))
+        self.test_point_2 = sphere.Sphere(
+            parent=self,
+            pos=self.point_center_2)
+
+        self.point_center_3 = (-length / 2, 0, width / 2 + 15)
+        self.test_point_3 = sphere.Sphere(
+            parent=self,
+            pos=self.point_center_3)
+
+        self.point_center_4 = (-length / 2, 0, -(width / 2 + 15))
+        self.test_point_4 = sphere.Sphere(
+            parent=self,
+            pos=self.point_center_4)
 
     def update(self):
         super(SpiderBot, self).update()
-        self.test_point.pos = (
-            self.point_center[0] + math.sin(time.time()) * 4,
-            self.point_center[1],
-            self.point_center[2] + math.sin(time.time()) * 4)
+        self.test_point_1.pos = (
+            self.point_center_1[0] + math.sin(time.time()) * 4,
+            self.point_center_1[1],
+            self.point_center_1[2] + math.sin(time.time()) * 4)
 
         self.front_right_leg.move_end(
-            self.test_point.frame_to_world((0, 0, 0)))
+            self.test_point_1.frame_to_world((0, 0, 0)))
+
+        self.test_point_2.pos = (
+            self.point_center_2[0] + math.sin(time.time()) * 4,
+            self.point_center_2[1],
+            self.point_center_2[2] - math.sin(time.time()) * 4)
+
+        self.front_left_leg.move_end(
+            self.test_point_2.frame_to_world((0, 0, 0)))
+
+        self.test_point_3.pos = (
+            self.point_center_3[0] + math.sin(time.time()) * 4,
+            self.point_center_3[1],
+            self.point_center_3[2] - math.sin(time.time()) * 4)
+
+        self.rear_left_leg.move_end(
+            self.test_point_3.frame_to_world((0, 0, 0)))
+
+        self.test_point_4.pos = (
+            self.point_center_4[0] + math.sin(time.time()) * 4,
+            self.point_center_4[1],
+            self.point_center_4[2] - math.sin(time.time()) * 4)
+
+        self.rear_right_leg.move_end(
+            self.test_point_4.frame_to_world((0, 0, 0)))
 
 
 class MyScene(scene.Scene):
