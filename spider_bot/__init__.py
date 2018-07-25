@@ -103,7 +103,7 @@ class Leg(shape.Shape):
             angle = math.acos(
                 (len_b * len_b + len_a * len_a - len_c * len_c) /
                 (2 * len_a * len_b))
-        except:
+        except ValueError:
             angle = math.pi
 
         self.p_2.ang_x = math.pi - angle
