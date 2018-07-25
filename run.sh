@@ -1,1 +1,1 @@
-venv/bin/python -m spider_bot
+venv/bin/spider_bot
