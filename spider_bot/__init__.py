@@ -11,7 +11,7 @@ from engine_3d import vector
 
 
 class Leg(shape.Shape):
-    show_center = False
+    show_center = True
 
     def __init__(
             self,
@@ -84,15 +84,29 @@ class Leg(shape.Shape):
         len_c = cur_pos.mag
 
         # 2.1 p_1 angle
-        angle = math.acos(
-            (len_a * len_a + len_c * len_c - len_b * len_b) /
-            (2 * len_a * len_c))
+        tmp = (2 * len_a * len_c)
+        if tmp != 0:
+            tmp2 = (len_a * len_a + len_c * len_c - len_b * len_b)
+            tmp3 = tmp2 / tmp
+            print(tmp, tmp2, tmp3)
+            try:
+                angle = math.acos(tmp3)
+            except ValueError:
+                angle = 0
+        else:
+            angle = 0
+
         self.p_1.ang_x = cur_pos.diff_angle(vector.Vector(0, 0, 1)) - angle
 
         # 2.2 p_2 angle
-        self.p_2.ang_x = math.pi - math.acos(
-            (len_b * len_b + len_a * len_a - len_c * len_c) /
-            (2 * len_a * len_b))
+        try:
+            angle = math.acos(
+                (len_b * len_b + len_a * len_a - len_c * len_c) /
+                (2 * len_a * len_b))
+        except:
+            angle = math.pi
+
+        self.p_2.ang_x = math.pi - angle
 
         # print('control angles: %s, %s, %s' % (
         #     self.p_0.ang_y, self.p_1.ang_x, self.p_2.ang_x))
@@ -160,7 +174,7 @@ class SpiderBot(box.Box):
     def update(self):
         super(SpiderBot, self).update()
         self.test_point_1.pos = (
-            self.point_center_1[0] + math.sin(time.time()) * 4,
+            self.point_center_1[0] + math.sin(time.time()) * 20,
             self.point_center_1[1],
             self.point_center_1[2] + math.sin(time.time()) * 4)
 
