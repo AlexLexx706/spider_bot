@@ -51,7 +51,7 @@ class SpiderBot(box.Box):
         self.rear_right_pos = (-length / 2, -4, width / 2 + 8)
         self.rear_left_pos = (-length / 2, -4, -(width / 2 + 8))
 
-        self.state = 0
+        self.move_state = 0
         self.begin_move = True
         self.move_time = 0.4
         self.half_step_len = 8
@@ -68,7 +68,7 @@ class SpiderBot(box.Box):
         dt = (time.time() - self.start_time) / self.move_time
 
         # 1. move front_left forward
-        if self.state == 0:
+        if self.move_state == 0:
             # move by line
             if dt < 1.0:
                 self.front_left_leg.move_end(
@@ -89,9 +89,9 @@ class SpiderBot(box.Box):
                 self.rear_right_leg.move_end(self.rear_right_pos)
 
                 self.begin_move = True
-                self.state = 1
+                self.move_state = 1
         # 2. 3 points
-        elif self.state == 1:
+        elif self.move_state == 1:
             if dt < 1.0:
                 self.front_left_leg.move_end(
                     self.front_left_pos +
@@ -128,9 +128,9 @@ class SpiderBot(box.Box):
                     vector.Vector(self.half_step_len, 0, 0))
 
                 self.begin_move = True
-                self.state = 2
+                self.move_state = 2
         # 3. move right rear leg
-        elif self.state == 2:
+        elif self.move_state == 2:
             if dt < 1.0:
                 self.front_left_leg.move_end(self.front_left_pos)
 
@@ -166,10 +166,10 @@ class SpiderBot(box.Box):
                     self.rear_right_pos)
 
                 self.begin_move = True
-                self.state = 3
+                self.move_state = 3
 
         # 3. move right front leg
-        elif self.state == 3:
+        elif self.move_state == 3:
             if dt < 1.0:
                 self.front_left_leg.move_end(
                     self.front_left_pos)
@@ -205,10 +205,10 @@ class SpiderBot(box.Box):
                     self.rear_right_pos)
 
                 self.begin_move = True
-                self.state = 4
+                self.move_state = 4
 
         # 3. move right front leg
-        elif self.state == 4:
+        elif self.move_state == 4:
             if dt < 1.0:
                 self.front_left_leg.move_end(
                     self.front_left_pos)
@@ -240,7 +240,27 @@ class SpiderBot(box.Box):
                     self.rear_right_pos)
 
                 self.begin_move = True
-                self.state = 0
+                self.move_state = 0
 
         def rotate(self):
-            pass
+            if self.begin_move:
+                self.start_time = time.time()
+                self.begin_move = False
+            dt = (time.time() - self.start_time) / self.move_time
+
+            # move front left leg
+            if self.rotate_state == 0:
+                pass
+            # move rear left leg
+            elif self.rotate_state == 1:
+                pass
+            # rotate all points
+            elif self.rotate_state == 2:
+                pass
+            # move rear right leg
+            elif self.rotate_state == 3:
+                pass
+            # move front right leg
+            elif self.rotate_state == 4:
+                pass
+
