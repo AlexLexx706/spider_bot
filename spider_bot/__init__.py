@@ -1,8 +1,5 @@
 import time
 import math
-from PyQt5 import QtWidgets
-from engine_3d import scene_view
-from engine_3d import scene
 from engine_3d import box
 from engine_3d import sphere
 from spider_bot import leg
@@ -113,19 +110,10 @@ class SpiderBot(box.Box):
         self.rear_right_leg.move_end(
             self.test_point_4.frame_to_world((0, 0, 0)))
 
-class MyScene(scene.Scene):
-    def __init__(self):
-        scene.Scene.__init__(self)
-        self.camera.eye.pos[2] = 150
-        self.camera.rotate_camera(1, -1)
-        self.bot = SpiderBot()
-        self.bot.pos = (10, 0, 0)
-
-
-def main():
-    import sys
-    MyScene()
-    app = QtWidgets.QApplication(sys.argv)
-    view = scene_view.SceneView()
-    view.show()
-    sys.exit(app.exec_())
+    def process_step(self):
+        if self.state == 0:
+            # 1. перемещаем плоскость с тремя ногами назад в течение 5 сек
+            # и левую в перед
+            pass
+        elif self.state == 1:
+            pass

@@ -10,7 +10,7 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'spider_bot = spider_bot:main'
+            'spider_bot = spider_bot.scene:main'
         ],
     }
 )

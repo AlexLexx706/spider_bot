@@ -1,3 +1,3 @@
-import spider_bot
+from spider_bot import scene
 
-spider_bot.main()
+scene.main()
