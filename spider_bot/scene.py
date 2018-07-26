@@ -10,7 +10,7 @@ class MyScene(scene.Scene):
         self.camera.eye.pos[2] = 150
         self.camera.rotate_camera(1, -1)
         self.bot = spider_bot.SpiderBot()
-        self.bot.pos = (10, 0, 0)
+        self.bot.pos = (0, 0, 0)
 
 
 def main():

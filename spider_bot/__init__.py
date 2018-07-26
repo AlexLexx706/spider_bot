@@ -3,6 +3,7 @@ import math
 from engine_3d import box
 from engine_3d import sphere
 from spider_bot import leg
+from engine_3d import vector
 
 
 class SpiderBot(box.Box):
@@ -37,83 +38,209 @@ class SpiderBot(box.Box):
 
         self.rear_left_leg = leg.Leg(
             parent=self,
-            pos=(-length / 2.0, 0.0, width / 2.0))
+            pos=(-length / 2.0, 0.0, -width / 2.0))
 
         self.rear_right_leg = leg.Leg(
             parent=self,
             axis=(-1, 0, 0),
-            pos=(-length / 2.0, 0.0, -width / 2.0))
+            pos=(-length / 2.0, 0.0, width / 2.0))
 
-        self.point_center_1 = (length / 2, 0, width / 2 + 8)
-        self.test_point_1 = sphere.Sphere(
-            # parent=self,
-            pos=self.point_center_1,
-            show_center=True)
+        # leg end point
+        self.front_right_pos = (length / 2, -4, width / 2 + 8)
+        self.front_left_pos = (length / 2, -4, -(width / 2 + 8))
+        self.rear_right_pos = (-length / 2, -4, width / 2 + 8)
+        self.rear_left_pos = (-length / 2, -4, -(width / 2 + 8))
 
-        self.point_center_2 = (length / 2, 0, -(width / 2 + 8))
-        self.test_point_2 = sphere.Sphere(
-            # parent=self,
-            pos=self.point_center_2,
-            show_center=True)
-
-        self.point_center_3 = (-length / 2, 0, width / 2 + 8)
-        self.test_point_3 = sphere.Sphere(
-            # parent=self,
-            pos=self.point_center_3,
-            show_center=True)
-
-        self.point_center_4 = (-length / 2, 0, -(width / 2 + 8))
-        self.test_point_4 = sphere.Sphere(
-            # parent=self,
-            pos=self.point_center_4,
-            show_center=True)
+        self.state = 0
+        self.begin_move = True
+        self.move_time = 0.4
+        self.half_step_len = 8
+        self.step_height = 3
 
     def update(self):
         super(SpiderBot, self).update()
-        # self.test_point_1.pos = (
-        #     self.point_center_1[0],
-        #     self.point_center_1[1] + math.sin(time.time()) * 20,
-        #     self.point_center_1[2])
+        self.move_forward()
 
-        # self.test_point_2.pos = (
-        #     self.point_center_2[0],
-        #     self.point_center_2[1] + math.sin(time.time()) * 20,
-        #     self.point_center_2[2])
+    def move_forward(self):
+        if self.begin_move:
+            self.start_time = time.time()
+            self.begin_move = False
+        dt = (time.time() - self.start_time) / self.move_time
 
-        # self.test_point_3.pos = (
-        #     self.point_center_3[0],
-        #     self.point_center_3[1] + math.sin(time.time()) * 20,
-        #     self.point_center_3[2])
-
-        # self.test_point_4.pos = (
-        #     self.point_center_4[0],
-        #     self.point_center_4[1] + math.sin(time.time()) * 20,
-        #     self.point_center_4[2])
-
-        self.pos = (
-            math.cos(time.time()) * 4,
-            math.sin(time.time()) * 2 + 6,
-            math.cos(time.time() * 4) * 4)
-
-        self.ang_x = math.cos(time.time() * 20) * 0.2
-        self.ang_y = math.cos(time.time() * 4) * 0.3
-
-        self.front_right_leg.move_end(
-            self.test_point_1.frame_to_world((0, 0, 0)))
-
-        self.front_left_leg.move_end(
-            self.test_point_2.frame_to_world((0, 0, 0)))
-
-        self.rear_left_leg.move_end(
-            self.test_point_3.frame_to_world((0, 0, 0)))
-
-        self.rear_right_leg.move_end(
-            self.test_point_4.frame_to_world((0, 0, 0)))
-
-    def process_step(self):
+        # 1. move front_left forward
         if self.state == 0:
-            # 1. перемещаем плоскость с тремя ногами назад в течение 5 сек
-            # и левую в перед
-            pass
+            # move by line
+            if dt < 1.0:
+                self.front_left_leg.move_end(
+                    self.front_left_pos +
+                    vector.Vector(
+                        self.half_step_len * dt,
+                        self.step_height * math.sin(math.pi * dt), 0))
+                self.front_right_leg.move_end(self.front_right_pos)
+                self.rear_left_leg.move_end(self.rear_left_pos)
+                self.rear_right_leg.move_end(self.rear_right_pos)
+            # end move
+            else:
+                self.front_left_leg.move_end(
+                    self.front_left_pos +
+                    vector.Vector(self.half_step_len, 0, 0))
+                self.front_right_leg.move_end(self.front_right_pos)
+                self.rear_left_leg.move_end(self.rear_left_pos)
+                self.rear_right_leg.move_end(self.rear_right_pos)
+
+                self.begin_move = True
+                self.state = 1
+        # 2. 3 points
         elif self.state == 1:
+            if dt < 1.0:
+                self.front_left_leg.move_end(
+                    self.front_left_pos +
+                    vector.Vector(self.half_step_len, 0, 0) +
+                    vector.Vector(-self.half_step_len, 0, 0) * dt)
+
+                self.front_right_leg.move_end(
+                    self.front_right_pos -
+                    vector.Vector(self.half_step_len, 0, 0) * dt)
+
+                self.rear_left_leg.move_end(
+                    self.rear_left_pos -
+                    vector.Vector(self.half_step_len, 0, 0) * dt)
+
+                self.rear_right_leg.move_end(
+                    self.rear_right_pos -
+                    vector.Vector(self.half_step_len, 0, 0) * dt)
+
+            # end move
+            else:
+                self.front_left_leg.move_end(
+                    self.front_left_pos)
+
+                self.front_right_leg.move_end(
+                    self.front_right_pos -
+                    vector.Vector(self.half_step_len, 0, 0))
+
+                self.rear_left_leg.move_end(
+                    self.rear_left_pos -
+                    vector.Vector(self.half_step_len, 0, 0))
+
+                self.rear_right_leg.move_end(
+                    self.rear_right_pos -
+                    vector.Vector(self.half_step_len, 0, 0))
+
+                self.begin_move = True
+                self.state = 2
+        # 3. move right rear leg
+        elif self.state == 2:
+            if dt < 1.0:
+                self.front_left_leg.move_end(self.front_left_pos)
+
+                self.front_right_leg.move_end(
+                    self.front_right_pos -
+                    vector.Vector(self.half_step_len, 0, 0))
+
+                self.rear_left_leg.move_end(
+                    self.rear_left_pos -
+                    vector.Vector(self.half_step_len, 0, 0))
+
+                self.rear_right_leg.move_end(
+                    self.rear_right_pos -
+                    vector.Vector(self.half_step_len, 0, 0) +
+                    vector.Vector(
+                        self.half_step_len * dt,
+                        self.step_height * math.sin(math.pi * dt),
+                        0))
+            # end move
+            else:
+                self.front_left_leg.move_end(
+                    self.front_left_pos)
+
+                self.front_right_leg.move_end(
+                    self.front_right_pos -
+                    vector.Vector(self.half_step_len, 0, 0))
+
+                self.rear_left_leg.move_end(
+                    self.rear_left_pos -
+                    vector.Vector(self.half_step_len, 0, 0))
+
+                self.rear_right_leg.move_end(
+                    self.rear_right_pos)
+
+                self.begin_move = True
+                self.state = 3
+
+        # 3. move right front leg
+        elif self.state == 3:
+            if dt < 1.0:
+                self.front_left_leg.move_end(
+                    self.front_left_pos)
+
+                self.front_right_leg.move_end(
+                    self.front_right_pos -
+                    vector.Vector(self.half_step_len, 0, 0) +
+                    vector.Vector(
+                        self.half_step_len * dt,
+                        self.step_height * math.sin(math.pi * dt),
+                        0))
+
+                self.rear_left_leg.move_end(
+                    self.rear_left_pos -
+                    vector.Vector(self.half_step_len, 0, 0))
+
+                self.rear_right_leg.move_end(
+                    self.rear_right_pos)
+
+            # end move
+            else:
+                self.front_left_leg.move_end(
+                    self.front_left_pos)
+
+                self.front_right_leg.move_end(
+                    self.front_right_pos)
+
+                self.rear_left_leg.move_end(
+                    self.rear_left_pos -
+                    vector.Vector(self.half_step_len, 0, 0))
+
+                self.rear_right_leg.move_end(
+                    self.rear_right_pos)
+
+                self.begin_move = True
+                self.state = 4
+
+        # 3. move right front leg
+        elif self.state == 4:
+            if dt < 1.0:
+                self.front_left_leg.move_end(
+                    self.front_left_pos)
+
+                self.front_right_leg.move_end(
+                    self.front_right_pos)
+
+                self.rear_left_leg.move_end(
+                    self.rear_left_pos -
+                    vector.Vector(self.half_step_len, 0, 0) +
+                    vector.Vector(
+                        self.half_step_len * dt,
+                        self.step_height * math.sin(math.pi * dt),
+                        0))
+                self.rear_right_leg.move_end(
+                    self.rear_right_pos)
+            # end move
+            else:
+                self.front_left_leg.move_end(
+                    self.front_left_pos)
+
+                self.front_right_leg.move_end(
+                    self.front_right_pos)
+
+                self.rear_left_leg.move_end(
+                    self.rear_left_pos)
+
+                self.rear_right_leg.move_end(
+                    self.rear_right_pos)
+
+                self.begin_move = True
+                self.state = 0
+
+        def rotate(self):
             pass
