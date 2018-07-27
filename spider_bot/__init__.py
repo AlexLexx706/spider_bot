@@ -64,175 +64,18 @@ class SpiderBot(box.Box):
 
     def update(self):
         super(SpiderBot, self).update()
-        # self.move_forward()
-        self.rotate_step()
+        self.move_forward()
+        if self.move_state == -1:
+            self.move_state = 0
+        #self.rotate_step()
 
     def move_forward(self):
         if self.begin_move:
             self.start_time = time.time()
             self.begin_move = False
-        dt = (time.time() - self.start_time) / self.move_time
 
-        # 1. move front_left forward
-        if self.move_state == 0:
-            # move by line
-            if dt < 1.0:
-                self.front_left_leg.move_end(
-                    self.front_left_pos +
-                    vector.Vector(
-                        self.half_step_len * dt,
-                        self.step_height * math.sin(math.pi * dt), 0))
-                self.front_right_leg.move_end(self.front_right_pos)
-                self.rear_left_leg.move_end(self.rear_left_pos)
-                self.rear_right_leg.move_end(self.rear_right_pos)
-            # end move
-            else:
-                self.front_left_leg.move_end(
-                    self.front_left_pos +
-                    vector.Vector(self.half_step_len, 0, 0))
-                self.front_right_leg.move_end(self.front_right_pos)
-                self.rear_left_leg.move_end(self.rear_left_pos)
-                self.rear_right_leg.move_end(self.rear_right_pos)
-
-                self.begin_move = True
-                self.move_state = 1
-        # 2. 3 points
-        elif self.move_state == 1:
-            if dt < 1.0:
-                self.front_left_leg.move_end(
-                    self.front_left_pos +
-                    vector.Vector(self.half_step_len, 0, 0) +
-                    vector.Vector(-self.half_step_len, 0, 0) * dt)
-
-                self.front_right_leg.move_end(
-                    self.front_right_pos -
-                    vector.Vector(self.half_step_len, 0, 0) * dt)
-
-                self.rear_left_leg.move_end(
-                    self.rear_left_pos -
-                    vector.Vector(self.half_step_len, 0, 0) * dt)
-
-                self.rear_right_leg.move_end(
-                    self.rear_right_pos -
-                    vector.Vector(self.half_step_len, 0, 0) * dt)
-
-            # end move
-            else:
-                self.front_left_leg.move_end(
-                    self.front_left_pos)
-
-                self.front_right_leg.move_end(
-                    self.front_right_pos -
-                    vector.Vector(self.half_step_len, 0, 0))
-
-                self.rear_left_leg.move_end(
-                    self.rear_left_pos -
-                    vector.Vector(self.half_step_len, 0, 0))
-
-                self.rear_right_leg.move_end(
-                    self.rear_right_pos -
-                    vector.Vector(self.half_step_len, 0, 0))
-
-                self.begin_move = True
-                self.move_state = 2
-        # 3. move right rear leg
-        elif self.move_state == 2:
-            if dt < 1.0:
-                self.front_left_leg.move_end(self.front_left_pos)
-
-                self.front_right_leg.move_end(
-                    self.front_right_pos -
-                    vector.Vector(self.half_step_len, 0, 0))
-
-                self.rear_left_leg.move_end(
-                    self.rear_left_pos -
-                    vector.Vector(self.half_step_len, 0, 0))
-
-                self.rear_right_leg.move_end(
-                    self.rear_right_pos -
-                    vector.Vector(self.half_step_len, 0, 0) +
-                    vector.Vector(
-                        self.half_step_len * dt,
-                        self.step_height * math.sin(math.pi * dt),
-                        0))
-            # end move
-            else:
-                self.front_left_leg.move_end(
-                    self.front_left_pos)
-
-                self.front_right_leg.move_end(
-                    self.front_right_pos -
-                    vector.Vector(self.half_step_len, 0, 0))
-
-                self.rear_left_leg.move_end(
-                    self.rear_left_pos -
-                    vector.Vector(self.half_step_len, 0, 0))
-
-                self.rear_right_leg.move_end(
-                    self.rear_right_pos)
-
-                self.begin_move = True
-                self.move_state = 3
-
-        # 3. move right front leg
-        elif self.move_state == 3:
-            if dt < 1.0:
-                self.front_left_leg.move_end(
-                    self.front_left_pos)
-
-                self.front_right_leg.move_end(
-                    self.front_right_pos -
-                    vector.Vector(self.half_step_len, 0, 0) +
-                    vector.Vector(
-                        self.half_step_len * dt,
-                        self.step_height * math.sin(math.pi * dt),
-                        0))
-
-                self.rear_left_leg.move_end(
-                    self.rear_left_pos -
-                    vector.Vector(self.half_step_len, 0, 0))
-
-                self.rear_right_leg.move_end(
-                    self.rear_right_pos)
-
-            # end move
-            else:
-                self.front_left_leg.move_end(
-                    self.front_left_pos)
-
-                self.front_right_leg.move_end(
-                    self.front_right_pos)
-
-                self.rear_left_leg.move_end(
-                    self.rear_left_pos -
-                    vector.Vector(self.half_step_len, 0, 0))
-
-                self.rear_right_leg.move_end(
-                    self.rear_right_pos)
-
-                self.begin_move = True
-                self.move_state = 4
-
-        # 3. move right front leg
-        elif self.move_state == 4:
-            if dt < 1.0:
-                self.front_left_leg.move_end(
-                    self.front_left_pos)
-
-                self.front_right_leg.move_end(
-                    self.front_right_pos)
-
-                self.rear_left_leg.move_end(
-                    self.rear_left_pos -
-                    vector.Vector(self.half_step_len, 0, 0) +
-                    vector.Vector(
-                        self.half_step_len * dt,
-                        self.step_height * math.sin(math.pi * dt),
-                        0))
-                self.rear_right_leg.move_end(
-                    self.rear_right_pos)
-            # end move
-            else:
+            # init pose
+            if self.move_state == 0:
                 self.front_left_leg.move_end(
                     self.front_left_pos)
 
@@ -244,9 +87,81 @@ class SpiderBot(box.Box):
 
                 self.rear_right_leg.move_end(
                     self.rear_right_pos)
+        dt = (time.time() - self.start_time) / self.move_time
 
+        # 1. move front_left forward
+        if self.move_state == 0:
+            # end
+            if dt >= 1.0:
                 self.begin_move = True
-                self.move_state = 0
+                self.move_state = 1
+                dt = 1.0
+
+            self.front_left_leg.move_end(
+                self.front_left_pos + vector.Vector(
+                    self.half_step_len * dt,
+                    self.step_height * math.sin(math.pi * dt),
+                    0))
+        # 2. 3 points
+        elif self.move_state == 1:
+            if dt >= 1.0:
+                self.begin_move = True
+                self.move_state = 2
+                dt = 1.0
+            # move legs
+            direction = vector.Vector(self.half_step_len, 0, 0) * dt
+            self.front_left_leg.move_end(
+                self.front_left_pos + vector.Vector(
+                    self.half_step_len, 0, 0) - direction)
+            self.front_right_leg.move_end(self.front_right_pos - direction)
+            self.rear_left_leg.move_end(self.rear_left_pos - direction)
+            self.rear_right_leg.move_end(self.rear_right_pos - direction)
+
+        # 3. move right rear leg
+        elif self.move_state == 2:
+            if dt >= 1.0:
+                self.begin_move = True
+                self.move_state = 3
+                dt = 1.0
+
+            # move leg
+            self.rear_right_leg.move_end(
+                self.rear_right_pos -
+                vector.Vector(self.half_step_len, 0, 0) +
+                vector.Vector(
+                    self.half_step_len * dt,
+                    self.step_height * math.sin(math.pi * dt),
+                    0))
+        # 3. move right front leg
+        elif self.move_state == 3:
+            # end
+            if dt >= 1.0:
+                self.begin_move = True
+                self.move_state = 4
+                dt = 1.0
+
+            # move leg
+            self.front_right_leg.move_end(
+                self.front_right_pos -
+                vector.Vector(self.half_step_len, 0, 0) +
+                vector.Vector(
+                    self.half_step_len * dt,
+                    self.step_height * math.sin(math.pi * dt),
+                    0))
+        # 3. move right front leg
+        elif self.move_state == 4:
+            if dt >= 1.0:
+                self.begin_move = True
+                self.move_state = -1
+                dt = 1.0
+            # move leg
+            self.rear_left_leg.move_end(
+                self.rear_left_pos -
+                vector.Vector(self.half_step_len, 0, 0) +
+                vector.Vector(
+                    self.half_step_len * dt,
+                    self.step_height * math.sin(math.pi * dt),
+                    0))
 
     def rotate_step(self):
         if self.begin_move:
@@ -355,7 +270,7 @@ class SpiderBot(box.Box):
             else:
                 angle = 0
                 self.begin_move = True
-                self.rotate_state = 0
+                self.rotate_state = -1
 
             self.front_right_leg.move_end(
                 up_vector + np.dot(
