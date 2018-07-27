@@ -64,10 +64,13 @@ class SpiderBot(box.Box):
 
     def update(self):
         super(SpiderBot, self).update()
-        self.move_forward()
-        if self.move_state == -1:
-            self.move_state = 0
-        #self.rotate_step()
+        # self.move_forward()
+        # if self.move_state == -1:
+        #     self.move_state = 0
+        self.rotate_step()
+        if self.rotate_state == -1:
+            self.rotate_state = 0
+
 
     def move_forward(self):
         if self.begin_move:
