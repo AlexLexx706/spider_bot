@@ -12,11 +12,18 @@ class SpiderBot(box.Box):
     '''
     Spider bot model
     '''
-    leg_width = 3
-    cylinder_radius = 1
-    cylinder_lenght = 4
-    shoulder_lenght = 10
-    forearm_lenght = 10
+    # actions
+    NOT_MOVE = 0
+    MOVE_FORWARD = 1
+    MOVE_BACKWARD = 2
+    ROTATE_LEFT = 3
+    ROTATE_RIGHT = 4
+
+    # actions settings
+    ROTATE_ANGLE = 20.0 / 180.0 * math.pi
+    HALF_STEP_LEN = 6
+    MOVE_TIME = 0.2
+    STEP_HEIGHT = 4
 
     def __init__(self, length=10, width=10, height=3, **kwargs):
         print('length:%s' % (length, ))
@@ -53,43 +60,80 @@ class SpiderBot(box.Box):
         self.rear_right_pos = (-length / 2, -4, width / 2 + 8)
         self.rear_left_pos = (-length / 2, -4, -(width / 2 + 8))
 
-        self.move_state = 0
+        self.move_state = -1
         self.begin_move = True
-        self.move_time = 0.4
-        self.half_step_len = 8
-        self.step_height = 3
+        self.move_time = self.MOVE_TIME
+        self.half_step_len = self.HALF_STEP_LEN
+        self.step_height = self.STEP_HEIGHT
 
-        self.rotate_state = 0
-        self.turn_angle = 20.0 / 180.0 * math.pi
+        self.rotate_state = -1
+        self.turn_angle = self.ROTATE_ANGLE
+
+        # not move at start
+        self.action = self.NOT_MOVE
+        self.process_reset()
+
+    def move_forward(self):
+        self.action = self.MOVE_FORWARD
+
+    def move_backward(self):
+        self.action = self.MOVE_BACKWARD
+
+    def rotate_left(self):
+        self.action = self.ROTATE_LEFT
+
+    def rotate_right(self):
+        self.action = self.ROTATE_RIGHT
 
     def update(self):
         super(SpiderBot, self).update()
-        # self.move_forward()
-        # if self.move_state == -1:
-        #     self.move_state = 0
-        self.rotate_step()
-        if self.rotate_state == -1:
-            self.rotate_state = 0
 
+        # process control signals
+        if self.move_state == -1 and self.rotate_state == -1:
+            if self.action == self.MOVE_FORWARD:
+                self.move_state = 0
+                self.begin_move = True
+                self.half_step_len = self.HALF_STEP_LEN
+            elif self.action == self.MOVE_BACKWARD:
+                self.move_state = 0
+                self.begin_move = True
+                self.half_step_len = -self.HALF_STEP_LEN
+            elif self.action == self.ROTATE_LEFT:
+                self.rotate_state = 0
+                self.begin_move = True
+                self.turn_angle = self.ROTATE_ANGLE
+            elif self.action == self.ROTATE_RIGHT:
+                self.rotate_state = 0
+                self.begin_move = True
+                self.turn_angle = -self.ROTATE_ANGLE
 
-    def move_forward(self):
+        # reset contrtol signal
+        self.action = self.NOT_MOVE
+
+        self.process_move()
+        self.process_rotate()
+
+    def process_reset(self):
+        self.front_left_leg.move_end(
+            self.front_left_pos)
+
+        self.front_right_leg.move_end(
+            self.front_right_pos)
+
+        self.rear_left_leg.move_end(
+            self.rear_left_pos)
+
+        self.rear_right_leg.move_end(
+            self.rear_right_pos)
+
+    def process_move(self):
         if self.begin_move:
             self.start_time = time.time()
             self.begin_move = False
 
             # init pose
             if self.move_state == 0:
-                self.front_left_leg.move_end(
-                    self.front_left_pos)
-
-                self.front_right_leg.move_end(
-                    self.front_right_pos)
-
-                self.rear_left_leg.move_end(
-                    self.rear_left_pos)
-
-                self.rear_right_leg.move_end(
-                    self.rear_right_pos)
+                self.process_reset()
         dt = (time.time() - self.start_time) / self.move_time
 
         # 1. move front_left forward
@@ -166,24 +210,14 @@ class SpiderBot(box.Box):
                     self.step_height * math.sin(math.pi * dt),
                     0))
 
-    def rotate_step(self):
+    def process_rotate(self):
         if self.begin_move:
             self.start_time = time.time()
             self.begin_move = False
 
             # init state
             if self.rotate_state == 0:
-                self.front_left_leg.move_end(
-                    self.front_left_pos)
-
-                self.front_right_leg.move_end(
-                    self.front_right_pos)
-
-                self.rear_left_leg.move_end(
-                    self.rear_left_pos)
-
-                self.rear_right_leg.move_end(
-                    self.rear_right_pos)
+                self.process_reset()
 
         dt = (time.time() - self.start_time) / self.move_time
         up_vector = vector.Vector(
@@ -281,4 +315,3 @@ class SpiderBot(box.Box):
                     transformations.rotation_matrix(
                         angle,
                         vector.Vector(0, 1, 0))[:3, :3].T))
-
