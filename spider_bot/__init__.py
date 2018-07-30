@@ -21,7 +21,7 @@ class SpiderBot(box.Box):
     # actions settings
     ROTATE_ANGLE = 20.0 / 180.0 * math.pi
     HALF_STEP_LEN = 6
-    MOVE_TIME = 2
+    MOVE_TIME = 0.3
     STEP_HEIGHT = 4
 
     def __init__(self, length=10, width=10, height=3, **kwargs):
@@ -178,7 +178,6 @@ class SpiderBot(box.Box):
 
             elif dt >= 1.0:
                 dt = 1.0
-                angle = self.turn_angle
                 self.begin_move = True
                 self.rotate_state = 2
 
@@ -216,34 +215,40 @@ class SpiderBot(box.Box):
 
         # move rear right leg
         elif self.rotate_state == 3:
-            if dt < 1.0:
-                angle = (1.0 - dt) * -self.turn_angle
-            else:
-                angle = 0
+            if self.first:
+                self.first = False
+                self.rear_right_start = self.rear_right_leg.end.g_pos
+                self.dir = np.dot(
+                    self.rear_right_start,
+                    transformations.rotation_matrix(
+                        self.turn_angle,
+                        vector.Vector(0, 1, 0))[:3, :3].T) -\
+                    self.rear_right_start
+            elif dt >= 1.0:
+                dt = 1.0
                 self.begin_move = True
                 self.rotate_state = 4
 
             self.rear_right_leg.move_end(
-                up_vector + np.dot(
-                    self.rear_right_pos,
-                    transformations.rotation_matrix(
-                        angle,
-                        vector.Vector(0, 1, 0))[:3, :3].T))
+                self.rear_right_start + self.dir * dt + up_vector)
         # move front right leg
         elif self.rotate_state == 4:
-            if dt < 1.0:
-                angle = (1.0 - dt) * -self.turn_angle
-            else:
-                angle = 0
+            if self.first:
+                self.first = False
+                self.front_right_start = self.front_right_leg.end.g_pos
+                self.dir = np.dot(
+                    self.front_right_start,
+                    transformations.rotation_matrix(
+                        self.turn_angle,
+                        vector.Vector(0, 1, 0))[:3, :3].T) -\
+                    self.front_right_start
+            elif dt >= 1.0:
+                dt = 1.0
                 self.begin_move = True
                 self.rotate_state = -1
 
             self.front_right_leg.move_end(
-                up_vector + np.dot(
-                    self.front_right_pos,
-                    transformations.rotation_matrix(
-                        angle,
-                        vector.Vector(0, 1, 0))[:3, :3].T))
+                self.front_right_start + self.dir * dt + up_vector)
 
     def process_move(self):
         if self.begin_move:
@@ -305,7 +310,7 @@ class SpiderBot(box.Box):
 
                 self.cur_half_step_len = math.trunc((
                     self.start - self.front_right_leg.end.g_pos).mag /
-                    self.half_step_len) * self.half_step_len
+                    math.fabs(self.half_step_len)) * self.half_step_len
 
             elif dt >= 1.0:
                 self.begin_move = True
