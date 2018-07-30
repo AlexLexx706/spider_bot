@@ -1,7 +1,6 @@
 import time
 import math
 from engine_3d import box
-from engine_3d import sphere
 from spider_bot import leg
 from engine_3d import vector
 from engine_3d import transformations
@@ -22,7 +21,7 @@ class SpiderBot(box.Box):
     # actions settings
     ROTATE_ANGLE = 20.0 / 180.0 * math.pi
     HALF_STEP_LEN = 6
-    MOVE_TIME = 0.2
+    MOVE_TIME = 2
     STEP_HEIGHT = 4
 
     def __init__(self, length=10, width=10, height=3, **kwargs):
@@ -114,7 +113,7 @@ class SpiderBot(box.Box):
         # reset contrtol signal
         self.action = self.NOT_MOVE
 
-        self.process_move_2()
+        self.process_move()
         self.process_rotate()
 
     def process_reset(self):
@@ -130,94 +129,11 @@ class SpiderBot(box.Box):
         self.rear_right_leg.move_end(
             self.rear_right_pos)
 
-    def process_move(self):
-        if self.begin_move:
-            self.start_time = time.time()
-            self.begin_move = False
-
-            # init pose
-            if self.move_state == 0:
-                self.process_reset()
-        dt = (time.time() - self.start_time) / self.move_time
-
-        # 1. move front_left forward
-        if self.move_state == 0:
-            # end
-            if dt >= 1.0:
-                self.begin_move = True
-                self.move_state = 1
-                dt = 1.0
-
-            self.front_left_leg.move_end(
-                self.front_left_pos + vector.Vector(
-                    self.half_step_len * dt,
-                    self.step_height * math.sin(math.pi * dt),
-                    0))
-        # 2. 3 points
-        elif self.move_state == 1:
-            if dt >= 1.0:
-                self.begin_move = True
-                self.move_state = 2
-                dt = 1.0
-            # move legs
-            direction = vector.Vector(self.half_step_len, 0, 0) * dt
-            self.front_left_leg.move_end(
-                self.front_left_pos + vector.Vector(
-                    self.half_step_len, 0, 0) - direction)
-            self.front_right_leg.move_end(self.front_right_pos - direction)
-            self.rear_left_leg.move_end(self.rear_left_pos - direction)
-            self.rear_right_leg.move_end(self.rear_right_pos - direction)
-
-        # 3. move right rear leg
-        elif self.move_state == 2:
-            if dt >= 1.0:
-                self.begin_move = True
-                self.move_state = 3
-                dt = 1.0
-
-            # move leg
-            self.rear_right_leg.move_end(
-                self.rear_right_pos -
-                vector.Vector(self.half_step_len, 0, 0) +
-                vector.Vector(
-                    self.half_step_len * dt,
-                    self.step_height * math.sin(math.pi * dt),
-                    0))
-        # 3. move right front leg
-        elif self.move_state == 3:
-            # end
-            if dt >= 1.0:
-                self.begin_move = True
-                self.move_state = 4
-                dt = 1.0
-
-            # move leg
-            self.front_right_leg.move_end(
-                self.front_right_pos -
-                vector.Vector(self.half_step_len, 0, 0) +
-                vector.Vector(
-                    self.half_step_len * dt,
-                    self.step_height * math.sin(math.pi * dt),
-                    0))
-        # 3. move right front leg
-        elif self.move_state == 4:
-            if dt >= 1.0:
-                self.begin_move = True
-                self.move_state = -1
-                dt = 1.0
-            # move leg
-            self.rear_left_leg.move_end(
-                self.rear_left_pos -
-                vector.Vector(self.half_step_len, 0, 0) +
-                vector.Vector(
-                    self.half_step_len * dt,
-                    self.step_height * math.sin(math.pi * dt),
-                    0))
-
     def process_rotate(self):
         if self.begin_move:
             self.start_time = time.time()
             self.begin_move = False
+            self.first = True
 
             # init state
             if self.rotate_state == 0:
@@ -231,63 +147,72 @@ class SpiderBot(box.Box):
 
         # move front left leg
         if self.rotate_state == 0:
-            if dt < 1.0:
-                angle = dt * self.turn_angle
-            else:
-                angle = self.turn_angle
-                self.begin_move = True
-                self.rotate_state = 1
-            self.front_left_leg.move_end(
-                up_vector + np.dot(
+            if self.first:
+                self.first = False
+                self.front_left_start = self.front_left_leg.end.g_pos
+                self.dir = np.dot(
                     self.front_left_pos,
                     transformations.rotation_matrix(
-                        angle,
-                        vector.Vector(0, 1, 0))[:3, :3].T))
+                        self.turn_angle,
+                        vector.Vector(0, 1, 0))[:3, :3].T) -\
+                    self.front_left_start
+
+            elif dt >= 1.0:
+                dt = 1.0
+                self.begin_move = True
+                self.rotate_state = 1
+
+            self.front_left_leg.move_end(
+                self.front_left_start + self.dir * dt + up_vector)
         # move rear left leg
         elif self.rotate_state == 1:
-            if dt < 1.0:
-                angle = dt * self.turn_angle
-            else:
+            if self.first:
+                self.first = False
+                self.rear_left_start = self.rear_left_leg.end.g_pos
+                self.dir = np.dot(
+                    self.rear_left_pos,
+                    transformations.rotation_matrix(
+                        self.turn_angle,
+                        vector.Vector(0, 1, 0))[:3, :3].T) -\
+                    self.rear_left_start
+
+            elif dt >= 1.0:
+                dt = 1.0
                 angle = self.turn_angle
                 self.begin_move = True
                 self.rotate_state = 2
 
             self.rear_left_leg.move_end(
-                up_vector + np.dot(
-                    self.rear_left_pos,
-                    transformations.rotation_matrix(
-                        angle,
-                        vector.Vector(0, 1, 0))[:3, :3].T))
+                self.rear_left_start + self.dir * dt + up_vector)
         # rotate all points
         elif self.rotate_state == 2:
-            if dt < 1.0:
-                angle_1 = (1.0 - dt) * self.turn_angle
-                angle_2 = dt * -self.turn_angle
-            else:
-                angle_1 = 0
-                angle_2 = -self.turn_angle
+            if self.first:
+                self.first = False
+                self.front_left_start = self.front_left_leg.end.g_pos
+                self.rear_left_start = self.rear_left_leg.end.g_pos
+                self.front_right_start = self.front_right_leg.end.g_pos
+                self.rear_right_start = self.rear_right_leg.end.g_pos
+
+            elif dt >= 1.0:
+                dt = 1.0
                 self.begin_move = True
                 self.rotate_state = 3
 
-            mat_1 = transformations.rotation_matrix(
-                angle_1,
-                vector.Vector(0, 1, 0))[:3, :3].T
-
-            mat_2 = transformations.rotation_matrix(
-                angle_2,
+            mat = transformations.rotation_matrix(
+                -self.turn_angle * dt,
                 vector.Vector(0, 1, 0))[:3, :3].T
 
             self.front_left_leg.move_end(
-                np.dot(self.front_left_pos, mat_1))
+                np.dot(self.front_left_start, mat))
 
             self.rear_left_leg.move_end(
-                np.dot(self.rear_left_pos, mat_1))
+                np.dot(self.rear_left_start, mat))
 
             self.front_right_leg.move_end(
-                np.dot(self.front_right_pos, mat_2))
+                np.dot(self.front_right_start, mat))
 
             self.rear_right_leg.move_end(
-                np.dot(self.rear_right_pos, mat_2))
+                np.dot(self.rear_right_start, mat))
 
         # move rear right leg
         elif self.rotate_state == 3:
@@ -320,7 +245,7 @@ class SpiderBot(box.Box):
                         angle,
                         vector.Vector(0, 1, 0))[:3, :3].T))
 
-    def process_move_2(self):
+    def process_move(self):
         if self.begin_move:
             self.start_time = time.time()
             self.begin_move = False
@@ -378,8 +303,9 @@ class SpiderBot(box.Box):
                 self.first = False
                 self.start = self.rear_right_leg.end.g_pos
 
-                self.cur_half_step_len = math.trunc((self.start - self.front_right_leg.end.g_pos).mag / self.half_step_len) * self.half_step_len
-                print('self.half_step_len:%s self.cur_half_step_len:%s' % (self.half_step_len, self.cur_half_step_len, ))
+                self.cur_half_step_len = math.trunc((
+                    self.start - self.front_right_leg.end.g_pos).mag /
+                    self.half_step_len) * self.half_step_len
 
             elif dt >= 1.0:
                 self.begin_move = True
