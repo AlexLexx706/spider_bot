@@ -129,6 +129,37 @@ class SpiderBot(box.Box):
         self.rear_right_leg.move_end(
             self.rear_right_pos)
 
+    @property
+    def step_dt(self):
+        if not self.begin_move:
+            return (time.time() - self.start_time) / self.move_time, False
+
+        self.start_time = time.time()
+        self.begin_move = False
+        return (time.time() - self.start_time) / self.move_time, True
+
+    def process_move_2(self):
+        dt, first = self.step_dt
+
+        if self.move_state == 0:
+            if first:
+                self.start = self.front_left_leg.end.g_pos
+                self.dir = np.dot(
+                    self.front_left_pos,
+                    transformations.rotation_matrix(
+                        self.turn_angle,
+                        vector.Vector(0, 1, 0))[:3, :3].T) -\
+                    self.front_left_start
+
+            elif dt >= 1.0:
+                dt = 1.0
+                self.begin_move = True
+                self.rotate_state = 1
+
+            self.front_left_leg.move_end(
+                self.front_left_start + self.dir * dt + up_vector)
+
+
     def process_rotate(self):
         if self.begin_move:
             self.start_time = time.time()
