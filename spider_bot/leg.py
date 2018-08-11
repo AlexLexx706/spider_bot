@@ -20,11 +20,13 @@ class Leg(shape.Shape):
         # 1. shoulder joints
         self.p_0 = shape.Shape(
             parent=self,
-            show_center=self.show_center)
+            show_center=self.show_center,
+            pos=(0.0, 0.0, 0.0))
 
         self.p_1 = shape.Shape(
             parent=self.p_0,
-            show_center=self.show_center)
+            show_center=self.show_center,
+            pos=(0.0, 0.0, 2))
 
         # 2. forearm joint
         self.p_2 = shape.Shape(
@@ -70,8 +72,8 @@ class Leg(shape.Shape):
             self.o_x,
             self.world_to_frame(pos))
 
-        # 2. calk tiangle
-        cur_pos = self.p_0.world_to_frame(pos)
+        # 2. calk triangle
+        cur_pos = self.p_0.world_to_frame(pos) - self.p_1.pos
         len_a = self.p_2.pos.mag
         len_b = self.end.pos.mag
         len_c = cur_pos.mag

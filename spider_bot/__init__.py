@@ -25,7 +25,6 @@ class SpiderBot(box.Box):
     STEP_HEIGHT = 4
 
     def __init__(self, length=10, width=10, height=3, **kwargs):
-        print('length:%s' % (length, ))
         super(SpiderBot, self).__init__(
             length=length,
             width=width,
@@ -74,7 +73,11 @@ class SpiderBot(box.Box):
         self.front_right_offset = vector.Vector(0, 0, 0)
         self.rear_left_offset = vector.Vector(0, 0, 0)
         self.rear_right_offset = vector.Vector(0, 0, 0)
+
         self.process_reset()
+
+    def test_leg_move(self):
+        pass
 
     def move_forward(self):
         self.action = self.MOVE_FORWARD
