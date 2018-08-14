@@ -1,69 +1,72 @@
 import math
-from engine_3d import cylinder
-from engine_3d import shape
+from engine_3d import node
 from engine_3d import vector
 
 
-class Leg(shape.Shape):
-    show_center = False
-
+class Leg(node.Node):
     def __init__(
             self,
             shoulder_lenght=10,
             forearm_lenght=10,
+            show_center=False,
+            show_geometry=True,
             **kwargs):
         '''robot leg'''
         super(Leg, self).__init__(
-            show_center=self.show_center,
             **kwargs)
 
         # 1. shoulder joints
-        self.p_0 = shape.Shape(
+        self.p_0 = node.Node(
             parent=self,
-            show_center=self.show_center,
             pos=(0.0, 0.0, 0.0))
 
-        self.p_1 = shape.Shape(
+        self.p_1 = node.Node(
             parent=self.p_0,
-            show_center=self.show_center,
             pos=(0.0, 0.0, 2))
 
         # 2. forearm joint
-        self.p_2 = shape.Shape(
+        self.p_2 = node.Node(
             parent=self.p_1,
-            show_center=self.show_center,
             pos=(0.0, 0.0, shoulder_lenght))
 
-        self.end = shape.Shape(
+        self.end = node.Node(
             parent=self.p_2,
-            show_center=self.show_center,
             pos=(0.0, 0.0, forearm_lenght))
 
-        # create visibly parts
-        self.cylinder_1 = cylinder.Cylinder(
-            parent=self.p_0,
-            length=5,
-            axis=(0, 1, 0))
+        if show_geometry:
+            # import only for graphic mode
+            from engine_3d import cylinder
 
-        self.cylinder_2 = cylinder.Cylinder(
-            parent=self.p_1,
-            length=4,
-            offset=(-2, 0, 0))
+            # create visibly parts
+            self.cylinder_1 = cylinder.Cylinder(
+                parent=self.p_0,
+                length=5,
+                show_center=show_center,
+                axis=(0, 1, 0))
 
-        self.cylinder_3 = cylinder.Cylinder(
-            parent=self.p_1,
-            length=shoulder_lenght,
-            axis=(0, 0, 1))
+            self.cylinder_2 = cylinder.Cylinder(
+                parent=self.p_1,
+                length=4,
+                show_center=show_center,
+                offset=(-2, 0, 0))
 
-        self.cylinder_4 = cylinder.Cylinder(
-            parent=self.p_2,
-            length=4,
-            offset=(-2, 0, 0))
+            self.cylinder_3 = cylinder.Cylinder(
+                parent=self.p_1,
+                length=shoulder_lenght,
+                show_center=show_center,
+                axis=(0, 0, 1))
 
-        self.cylinder_5 = cylinder.Cylinder(
-            parent=self.p_2,
-            length=forearm_lenght,
-            axis=(0, 0, 1))
+            self.cylinder_4 = cylinder.Cylinder(
+                parent=self.p_2,
+                length=4,
+                show_center=show_center,
+                offset=(-2, 0, 0))
+
+            self.cylinder_5 = cylinder.Cylinder(
+                parent=self.p_2,
+                length=forearm_lenght,
+                show_center=show_center,
+                axis=(0, 0, 1))
 
     def move_end(self, pos):
         # 1. calk p_0 angle - vertical angle

@@ -1,5 +1,6 @@
 import time
 import math
+from engine_3d import node
 from engine_3d import box
 from spider_bot import leg
 from engine_3d import vector
@@ -7,7 +8,7 @@ from engine_3d import transformations
 import numpy as np
 
 
-class SpiderBot(box.Box):
+class SpiderBot(node.Node):
     '''
     Spider bot model
     '''
@@ -24,33 +25,53 @@ class SpiderBot(box.Box):
     MOVE_TIME = 0.3
     STEP_HEIGHT = 4
 
-    def __init__(self, length=10, width=10, height=3, **kwargs):
+    def __init__(
+            self,
+            length=10,
+            width=10,
+            height=3,
+            show_center=False,
+            show_geometry=True,
+            **kwargs):
         super(SpiderBot, self).__init__(
-            length=length,
-            width=width,
-            height=height,
-            offset=(0, height / 2, 0),
-            show_center=True,
-            color=(1, 0, 0, 1),
             **kwargs)
 
         self.front_right_leg = leg.Leg(
             parent=self,
+            show_center=show_center,
+            show_geometry=show_geometry,
             pos=(length / 2.0, 0.0, width / 2.0))
 
         self.front_left_leg = leg.Leg(
             parent=self,
             axis=(-1, 0, 0),
+            show_center=show_center,
+            show_geometry=show_geometry,
             pos=(length / 2.0, 0.0, -width / 2.0))
 
         self.rear_left_leg = leg.Leg(
             parent=self,
+            show_center=show_center,
+            show_geometry=show_geometry,
             pos=(-length / 2.0, 0.0, -width / 2.0))
 
         self.rear_right_leg = leg.Leg(
             parent=self,
             axis=(-1, 0, 0),
+            show_center=show_center,
+            show_geometry=show_geometry,
             pos=(-length / 2.0, 0.0, width / 2.0))
+
+        if show_geometry:
+            self.box = box.Box(
+                parent=self,
+                length=length,
+                width=width,
+                height=height,
+                offset=(0, height / 2, 0),
+                show_center=show_center,
+                show_geometry=show_geometry,
+                color=(1, 0, 0, 1))
 
         # leg end point
         self.front_right_pos = (length / 2, -4, width / 2 + 8)
@@ -140,28 +161,6 @@ class SpiderBot(box.Box):
         self.start_time = time.time()
         self.begin_move = False
         return (time.time() - self.start_time) / self.move_time, True
-
-    def process_move_2(self):
-        dt, first = self.step_dt
-
-        if self.move_state == 0:
-            if first:
-                self.start = self.front_left_leg.end.g_pos
-                self.dir = np.dot(
-                    self.front_left_pos,
-                    transformations.rotation_matrix(
-                        self.turn_angle,
-                        vector.Vector(0, 1, 0))[:3, :3].T) -\
-                    self.front_left_start
-
-            elif dt >= 1.0:
-                dt = 1.0
-                self.begin_move = True
-                self.rotate_state = 1
-
-            self.front_left_leg.move_end(
-                self.front_left_start + self.dir * dt + up_vector)
-
 
     def process_rotate(self):
         if self.begin_move:
