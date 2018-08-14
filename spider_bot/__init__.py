@@ -1,7 +1,6 @@
 import time
 import math
 from engine_3d import node
-from engine_3d import box
 from spider_bot import leg
 from engine_3d import vector
 from engine_3d import transformations
@@ -62,7 +61,9 @@ class SpiderBot(node.Node):
             show_geometry=show_geometry,
             pos=(-length / 2.0, 0.0, width / 2.0))
 
+        # use only in client part
         if show_geometry:
+            from engine_3d import box
             self.box = box.Box(
                 parent=self,
                 length=length,
