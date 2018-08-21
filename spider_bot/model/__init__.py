@@ -6,14 +6,20 @@ from spider_bot.model import fake_scene
 from spider_bot.model import common
 from spider_bot.model import server
 from spider_bot.model import handlers
+from spider_bot.model import notifier
+
 import spider_bot
 
 LOG = logging.getLogger(__name__)
-LOG.debug('xxxx')
-handlers.register()
 
 
 def main():
+    # register server handlers
+    handlers.register()
+
+    # registry notifier class, use for send clients notifys
+    common.NOTIFY.register_notifier(notifier.Notifier)
+
     period = 1.0 / settings.UPDATES_PER_SECOND
     sleep_period = period / 10.0
 
@@ -35,6 +41,9 @@ def main():
             if dt >= period:
                 start_time = cur_time
                 scene.update()
+
+                # send notify for all clients
+                notifier.Notifier.process()
             # make other actions
             else:
                 time.sleep(sleep_period)

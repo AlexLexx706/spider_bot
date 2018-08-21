@@ -2,6 +2,7 @@ import time
 import math
 from engine_3d import node
 from spider_bot import leg
+from spider_bot.model import enums
 from engine_3d import vector
 from engine_3d import transformations
 import numpy as np
@@ -11,13 +12,6 @@ class SpiderBot(node.Node):
     '''
     Spider bot model
     '''
-    # actions
-    NOT_MOVE = 0
-    MOVE_FORWARD = 1
-    MOVE_BACKWARD = 2
-    ROTATE_LEFT = 3
-    ROTATE_RIGHT = 4
-
     # actions settings
     ROTATE_ANGLE = 20.0 / 180.0 * math.pi
     HALF_STEP_LEN = 6
@@ -90,7 +84,7 @@ class SpiderBot(node.Node):
         self.turn_angle = self.ROTATE_ANGLE
 
         # not move at start
-        self.action = self.NOT_MOVE
+        self.action = enums.NOT_MOVE
         self.front_left_offset = vector.Vector(0, 0, 0)
         self.front_right_offset = vector.Vector(0, 0, 0)
         self.rear_left_offset = vector.Vector(0, 0, 0)
@@ -102,41 +96,41 @@ class SpiderBot(node.Node):
         pass
 
     def move_forward(self):
-        self.action = self.MOVE_FORWARD
+        self.action = enums.MOVE_FORWARD
 
     def move_backward(self):
-        self.action = self.MOVE_BACKWARD
+        self.action = enums.MOVE_BACKWARD
 
     def rotate_left(self):
-        self.action = self.ROTATE_LEFT
+        self.action = enums.ROTATE_LEFT
 
     def rotate_right(self):
-        self.action = self.ROTATE_RIGHT
+        self.action = enums.ROTATE_RIGHT
 
     def update(self):
         super(SpiderBot, self).update()
 
         # process control signals
         if self.move_state == -1 and self.rotate_state == -1:
-            if self.action == self.MOVE_FORWARD:
+            if self.action == enums.MOVE_FORWARD:
                 self.move_state = 0
                 self.begin_move = True
                 self.half_step_len = self.HALF_STEP_LEN
-            elif self.action == self.MOVE_BACKWARD:
+            elif self.action == enums.MOVE_BACKWARD:
                 self.move_state = 0
                 self.begin_move = True
                 self.half_step_len = -self.HALF_STEP_LEN
-            elif self.action == self.ROTATE_LEFT:
+            elif self.action == enums.ROTATE_LEFT:
                 self.rotate_state = 0
                 self.begin_move = True
                 self.turn_angle = self.ROTATE_ANGLE
-            elif self.action == self.ROTATE_RIGHT:
+            elif self.action == enums.ROTATE_RIGHT:
                 self.rotate_state = 0
                 self.begin_move = True
                 self.turn_angle = -self.ROTATE_ANGLE
 
         # reset contrtol signal
-        self.action = self.NOT_MOVE
+        self.action = enums.NOT_MOVE
 
         self.process_move()
         self.process_rotate()

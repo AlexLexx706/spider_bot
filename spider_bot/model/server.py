@@ -27,7 +27,7 @@ def run():
             # try execute command
             try:
                 res = common.HANDLERS[msg[0]](
-                    None if len(msg) == 1 else msg[1])
+                    None if len(msg) == 1 else msg[1], addr=addr)
             except KeyError as e:
                 err_desc = 'wrong command:%s' % (e,)
                 LOG.warning(err_desc)
