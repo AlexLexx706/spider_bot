@@ -13,6 +13,16 @@ import spider_bot
 LOG = logging.getLogger(__name__)
 
 
+class FakeScene:
+    """used for calculate ik in bot"""
+    def __init__(self):
+        self.frames = []
+
+    def update(self):
+        for frame in self.frames:
+            frame.update()
+
+
 def main():
     # register server handlers
     handlers.register()
