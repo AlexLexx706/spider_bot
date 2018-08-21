@@ -2,7 +2,6 @@ import time
 import threading
 import logging
 from spider_bot.model import settings
-from spider_bot.model import fake_scene
 from spider_bot.model import common
 from spider_bot.model import server
 from spider_bot.model import handlers
