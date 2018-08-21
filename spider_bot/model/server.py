@@ -10,6 +10,7 @@ LOG = logging.getLogger(__name__)
 
 
 def run():
+    """simple UDP server, for reveive data from clients"""
     try:
         LOG.debug('start run')
         common.SOCK = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -44,6 +45,7 @@ def run():
 
 
 def close():
+    """stop server"""
     if common.SOCK is not None:
         common.SOCK.shutdown(socket.SHUT_RDWR)
         common.SOCK.close()

@@ -6,6 +6,7 @@ LOG = logging.getLogger(__name__)
 
 
 def get_state_handler(data):
+    """handler"""
     LOG.info('get_state_handler bot:%s' % (common.BOT, ))
     return (enums.NO_ERROR, 1)
 
