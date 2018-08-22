@@ -1,9 +1,8 @@
 import time
-import threading
 import logging
 from spider_bot.model import settings
 from spider_bot.model import common
-from spider_bot.model import server
+from spider_bot.model import server as server_mod
 from spider_bot.model import handlers
 from spider_bot.model import notifier
 
@@ -37,8 +36,7 @@ def main():
     common.BOT = spider_bot.SpiderBot(scene=scene)
 
     # create and start udp server
-    server_thread = threading.Thread(target=server.run)
-    server_thread.start()
+    server = server_mod.Server()
 
     # controler
     try:
@@ -57,9 +55,9 @@ def main():
             else:
                 time.sleep(sleep_period)
     except KeyboardInterrupt:
-        LOG.debug("KeyboardInterrupt")
+        LOG.debug('KeyboardInterrupt')
+    finally:
         server.close()
-        server_thread.join()
 
 
 if __name__ == "__main__":

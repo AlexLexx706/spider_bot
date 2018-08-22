@@ -73,6 +73,11 @@ class MySceneView(scene_view.SceneView):
         # elif event.key() == QtCore.Qt.Key_Down:
         #     self.scene.bot.move_backward()
 
+    def closeEvent(self, event):
+        print('closeEvent')
+        event.accept()
+        self.scene.client.close()
+
 
 def main():
     import sys

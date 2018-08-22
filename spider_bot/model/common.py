@@ -5,7 +5,6 @@ LOG = logging.getLogger(__name__)
 
 BOT = None
 HANDLERS = {}
-SOCK = None
 
 
 class NOTIFY:
