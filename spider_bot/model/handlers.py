@@ -43,7 +43,7 @@ def get_state(data, **kwargs):
 
 
 def set_action(action, **kwargs):
-    LOG.info('set_action')
+    # LOG.info('set_action')
     common.BOT.action = action
     return (enums.NO_ERROR, [])
 

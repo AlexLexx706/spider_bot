@@ -9,7 +9,7 @@ LOG = logging.getLogger(__name__)
 
 
 class Notifier:
-    """used for notifi clients about updates"""
+    """used for send notifis to clients"""
     lock = threading.Lock()
     sock = None
 
