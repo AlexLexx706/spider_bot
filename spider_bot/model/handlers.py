@@ -9,7 +9,7 @@ LOG = logging.getLogger(__name__)
 
 def get_state(data, **kwargs):
     """handler"""
-    LOG.info('get_state kwargs:%s' % (kwargs, ))
+    # LOG.info('get_state kwargs:%s' % (kwargs, ))
     res = {
         'mat': [
             common.BOT._matrix,
@@ -48,17 +48,19 @@ def set_action(action, **kwargs):
     return (enums.NO_ERROR, [])
 
 
-def enable_notify(enable, **kwargs):
-    LOG.info('enable_notify:%s' % (common.BOT, ))
+def add_notify(port, **kwargs):
+    LOG.info('add_notify port:%s, addr:%s' % (port, kwargs['addr']))
+    common.NOTIFY.add((kwargs['addr'][0], port))
 
-    if enable:
-        common.NOTIFY.add(kwargs['addr'])
-    else:
-        common.NOTIFY.remove(kwargs['addr'])
+
+def rm_notify(port, **kwargs):
+    LOG.info('rm_notify port:%s, addr:%s' % (port, kwargs['addr']))
+    common.NOTIFY.remove((kwargs['addr'][0], port))
 
 
 def register():
     # register handlers
     common.HANDLERS[enums.CMD_GET_STATE] = get_state
     common.HANDLERS[enums.CMD_SET_ACTION] = set_action
-    common.HANDLERS[enums.CMD_ENABLE_NOTIFY] = enable_notify
+    common.HANDLERS[enums.CMD_ADD_NOTIFY] = add_notify
+    common.HANDLERS[enums.CMD_RM_NOTIFY] = rm_notify

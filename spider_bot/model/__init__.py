@@ -33,7 +33,7 @@ def main():
     sleep_period = period / 10.0
 
     start_time = time.time()
-    scene = fake_scene.FakeScene()
+    scene = FakeScene()
     common.BOT = spider_bot.SpiderBot(scene=scene)
 
     # create and start udp server

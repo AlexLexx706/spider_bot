@@ -12,16 +12,15 @@ LOG = logging.getLogger(__name__)
 def run():
     """simple UDP server, for reveive data from clients"""
     try:
-        LOG.debug('start run')
         common.SOCK = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         common.SOCK.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         LOG.debug("Listening on udp %s:%s" % (
-            settings.HOST, settings.PORT))
-        common.SOCK.bind((settings.HOST, settings.PORT))
+            settings.HOST, settings.SERVER_PORT))
+        common.SOCK.bind((settings.HOST, settings.SERVER_PORT))
 
         while True:
-            data, addr = common.SOCK.recvfrom(128 * 1024)
+            data, addr = common.SOCK.recvfrom(settings.MAX_PACKET_SIZE)
             msg = msgpack.unpackb(data, raw=False)
 
             # try execute command
@@ -40,8 +39,6 @@ def run():
                 addr)
     except OSError as e:
         LOG.warning(e)
-    finally:
-        LOG.debug("run complete")
 
 
 def close():

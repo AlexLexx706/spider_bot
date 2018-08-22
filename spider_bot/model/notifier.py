@@ -32,7 +32,7 @@ class Notifier:
         with cls.lock:
             if cls.sock:
                 for addr in common.NOTIFY.iterate():
-                    cls.sock.sendto(
-                        msgpack.packb(
-                            handlers.get_state(None), use_bin_type=True),
-                        addr)
+                    data = msgpack.packb(
+                        handlers.get_state(None),
+                        use_bin_type=True)
+                    cls.sock.sendto(data, addr)
