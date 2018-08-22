@@ -11,8 +11,14 @@ python setup.py develop
 ```
 
 
-Run application:
+Run application gui part:
 ----------------
 ```
-./run.sh
+./gui.sh
+```
+
+Run server part:
+----------------
+```
+./server.sh
 ```
