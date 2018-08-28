@@ -2,7 +2,7 @@ import time
 import math
 from engine_3d import node
 from spider_bot import leg
-from spider_bot.model import enums
+from spider_bot import enums
 from engine_3d import vector
 from engine_3d import transformations
 import numpy as np

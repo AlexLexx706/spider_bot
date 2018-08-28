@@ -3,9 +3,9 @@ import msgpack
 import logging
 import traceback
 import threading
-
+from spider_bot import enums
+from spider_bot import settings as g_settings
 from spider_bot.model import settings
-from spider_bot.model import enums
 from spider_bot.model import common
 
 
@@ -15,17 +15,17 @@ LOG = logging.getLogger(__name__)
 class Server:
     """simple UDP server, for reveive data from clients"""
 
-    def __init__(self, host=settings.HOST, port=settings.SERVER_PORT):
+    def __init__(self, host=settings.HOST, port=g_settings.SERVER_PORT):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind((settings.HOST, settings.SERVER_PORT))
+        self.sock.bind((host, port))
         self.thread = threading.Thread(target=self.run)
         self.thread.start()
 
     def run(self):
         try:
             while 1:
-                data, addr = self.sock.recvfrom(settings.MAX_PACKET_SIZE)
+                data, addr = self.sock.recvfrom(g_settings.MAX_PACKET_SIZE)
                 msg = msgpack.unpackb(data, raw=False)
 
                 # try execute command

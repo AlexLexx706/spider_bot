@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from engine_3d import scene_view
-from spider_bot.model import enums
+from spider_bot import enums
 
 
 class SceneView(scene_view.SceneView):

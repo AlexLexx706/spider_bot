@@ -1,6 +1,6 @@
 from engine_3d import scene
 import spider_bot
-from spider_bot.model import client
+from spider_bot.gui import client
 
 
 class Scene(scene.Scene):

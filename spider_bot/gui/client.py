@@ -3,15 +3,17 @@ import msgpack
 import logging
 import threading
 import msgpack_numpy as m
-from spider_bot.model import settings
-from spider_bot.model import enums
+from spider_bot import enums
+from spider_bot.gui import settings
+from spider_bot import settings as g_settings
+
 
 m.patch()
 LOG = logging.getLogger(__name__)
 
 
 class Client:
-    def __init__(self, host=settings.SERVER_IP, port=settings.SERVER_PORT):
+    def __init__(self, host=settings.SERVER_IP, port=g_settings.SERVER_PORT):
         self.server_address = (host, port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.notify_thread = None
@@ -91,7 +93,7 @@ class Client:
             LOG.info('listen_notify begin')
             while 1:
                 data, addr = self.notify_sock.recvfrom(
-                    settings.MAX_PACKET_SIZE)
+                    g_settings.MAX_PACKET_SIZE)
                 # process notify
                 if self.notify_handler:
                     error_code, data = msgpack.unpackb(data, raw=False)
