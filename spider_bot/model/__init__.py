@@ -34,7 +34,9 @@ def main():
 
     start_time = time.time()
     scene = FakeScene()
-    common.BOT = spider_bot.SpiderBot(scene=scene)
+    common.BOT = spider_bot.SpiderBot(
+        scene=scene,
+        show_geometry=False)
 
     # create and start udp server
     server = server_mod.Server()
