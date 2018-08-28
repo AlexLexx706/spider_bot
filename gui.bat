@@ -1,1 +1,1 @@
-venv\Scripts\spider_bot.exe
+venv\Scripts\python spider_bot\gui\__init__.py
