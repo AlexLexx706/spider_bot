@@ -5,7 +5,7 @@ from spider_bot.model import common
 from spider_bot.model import server as server_mod
 from spider_bot.model import handlers
 from spider_bot.model import notifier
-
+import engine_3d
 import spider_bot
 
 LOG = logging.getLogger(__name__)
@@ -14,6 +14,7 @@ LOG = logging.getLogger(__name__)
 class FakeScene:
     """used for calculate ik in bot"""
     def __init__(self):
+        engine_3d.CUR_SCENE = self
         self.frames = []
 
     def update(self):
