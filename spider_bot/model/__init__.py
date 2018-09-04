@@ -1,12 +1,11 @@
 import time
-import threading
 import logging
 from spider_bot.model import settings
 from spider_bot.model import common
-from spider_bot.model import server
+from spider_bot.model import server as server_mod
 from spider_bot.model import handlers
 from spider_bot.model import notifier
-
+import engine_3d
 import spider_bot
 
 LOG = logging.getLogger(__name__)
@@ -15,6 +14,7 @@ LOG = logging.getLogger(__name__)
 class FakeScene:
     """used for calculate ik in bot"""
     def __init__(self):
+        engine_3d.CUR_SCENE = self
         self.frames = []
 
     def update(self):
@@ -34,11 +34,12 @@ def main():
 
     start_time = time.time()
     scene = FakeScene()
-    common.BOT = spider_bot.SpiderBot(scene=scene)
+    common.BOT = spider_bot.SpiderBot(
+        scene=scene,
+        show_geometry=False)
 
     # create and start udp server
-    server_thread = threading.Thread(target=server.run)
-    server_thread.start()
+    server = server_mod.Server()
 
     # controler
     try:
@@ -57,9 +58,9 @@ def main():
             else:
                 time.sleep(sleep_period)
     except KeyboardInterrupt:
-        LOG.debug("KeyboardInterrupt")
+        LOG.debug('KeyboardInterrupt')
+    finally:
         server.close()
-        server_thread.join()
 
 
 if __name__ == "__main__":

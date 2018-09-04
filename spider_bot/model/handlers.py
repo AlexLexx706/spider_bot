@@ -1,6 +1,6 @@
 import logging
+from spider_bot import enums
 from spider_bot.model import common
-from spider_bot.model import enums
 import msgpack_numpy as m
 m.patch()
 

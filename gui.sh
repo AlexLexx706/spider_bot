@@ -1,1 +1,1 @@
-venv/bin/spider_bot
+venv/bin/spider_bot_gui

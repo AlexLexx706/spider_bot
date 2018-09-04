@@ -3,15 +3,17 @@ import msgpack
 import logging
 import threading
 import msgpack_numpy as m
-from spider_bot.model import settings
-from spider_bot.model import enums
+from spider_bot import enums
+from spider_bot.gui import settings
+from spider_bot import settings as g_settings
+
 
 m.patch()
 LOG = logging.getLogger(__name__)
 
 
 class Client:
-    def __init__(self, host=settings.SERVER_IP, port=settings.SERVER_PORT):
+    def __init__(self, host=settings.SERVER_IP, port=g_settings.SERVER_PORT):
         self.server_address = (host, port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.notify_thread = None
@@ -70,7 +72,7 @@ class Client:
         if self.notify_thread is not None:
             # 1. stop thread
             # self.notify_sock.shutdown(socket.SHUT_RDWR)
-            self.notify_sock.close()
+            self.notify_sock.shutdown(socket.SHUT_RD)
             self.notify_thread.join()
             self.notify_sock = None
             self.notify_thread = None
@@ -91,13 +93,13 @@ class Client:
             LOG.info('listen_notify begin')
             while 1:
                 data, addr = self.notify_sock.recvfrom(
-                    settings.MAX_PACKET_SIZE)
+                    g_settings.MAX_PACKET_SIZE)
                 # process notify
                 if self.notify_handler:
                     error_code, data = msgpack.unpackb(data, raw=False)
                     self.notify_handler(error_code, data)
-        except OSError as e:
-            LOG.warning(e)
+        except OSError:
+            pass
         finally:
             LOG.info('listen_notify end')
 
@@ -115,10 +117,10 @@ if __name__ == "__main__":
 
     client = Client()
     client.notify_handler = notify_handler
-    print(client.add_notify())
+    client.add_notify()
     import time
     try:
-        time.sleep(100)
+        time.sleep(2)
     except KeyboardInterrupt:
         pass
     finally:
