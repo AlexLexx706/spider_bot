@@ -19,10 +19,12 @@ class Leg(node.Node):
         self.p_0 = node.Node(
             parent=self,
             pos=(0.0, 0.0, 0.0))
+        # self.p_0.ang_z = 0.5
 
         self.p_1 = node.Node(
             parent=self.p_0,
             pos=(0.0, 0.0, 2))
+        # print(self.p_1.matrix)
 
         # 2. forearm joint
         self.p_2 = node.Node(
@@ -68,7 +70,7 @@ class Leg(node.Node):
                 show_center=show_center,
                 axis=(0, 0, 1))
 
-    def move_end(self, pos):
+    def move_end(self, pos, print_res=False):
         # 1. calk p_0 angle - vertical angle
         self.p_0.ang_y = self.get_proj_angle(
             self.o_z,
@@ -100,6 +102,7 @@ class Leg(node.Node):
             vector.Vector(0., -1.0, 0.0)) > 0.0 else -dir_angle
         self.p_1.ang_x = dir_angle - angle
 
+        print("self.p_1.mat:%s" % (self.p_1.matrix, ))
         # 2.2 p_2 angle
         try:
             angle = math.acos(
@@ -109,3 +112,19 @@ class Leg(node.Node):
             angle = math.pi
 
         self.p_2.ang_x = math.pi - angle
+        if print_res:
+            print(
+                "move_end len_a:%s len_b:%s pos:%s p_0.ang_y:%s "
+                "p_1.ang_x:%s p_2.ang_x:%s end_pos:%s" % (
+                    len_a,
+                    len_b,
+                    pos,
+                    self.p_0.ang_x,
+                    self.p_1.ang_x,
+                    self.p_2.ang_x,
+                    self.end.frame_to_world((0, 0, 0))))
+
+
+if __name__ == "__main__":
+    leg = Leg(show_geometry=True)
+    leg.move_end((0, -7.0, 12.0), print_res=True)
