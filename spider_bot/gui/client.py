@@ -77,6 +77,7 @@ class Client:
 
     def rm_notify(self):
         if self.notify_thread is not None:
+            print('rm_notify port:%s' % (self.notify_port, ))
             # 1. stop thread
             # self.notify_sock.shutdown(socket.SHUT_RDWR)
             self.notify_sock.shutdown(socket.SHUT_RD)
