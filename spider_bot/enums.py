@@ -21,8 +21,7 @@ ROTATE_RIGHT = 4
 class Header(ctypes.Structure):
     _fields_ = (
         ('cmd', ctypes.c_int),
-        ('size', ctypes.c_ulong))
-    _pack_ = 1
+        ('size', ctypes.c_uint))
 
 
 class ResHeader(ctypes.Structure):
@@ -65,7 +64,12 @@ class AddNotifyCmd(ctypes.Structure):
     _fields_ = (
         ('header', Header),
         ('port', ctypes.c_ushort))
-    _pack_ = 1
+    _pack_ = 0
 
 
 RmNotifyCmd = AddNotifyCmd
+
+print("Header:%s" % (ctypes.sizeof(Header),))
+print("SetActionCmd:%s" % (ctypes.sizeof(SetActionCmd), ))
+print("AddNotifyCmd:%s" % (ctypes.sizeof(AddNotifyCmd), ))
+# exit(1)

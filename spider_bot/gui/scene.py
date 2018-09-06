@@ -14,7 +14,7 @@ class Scene(scene.Scene):
         self.client.notify_handler = self.notify_handler
         self.client.add_notify()
 
-    def notify_handler(self, res, data):
+    def notify_handler(self, data):
         mat = data['mat']
         self.bot._matrix = mat[0]
 

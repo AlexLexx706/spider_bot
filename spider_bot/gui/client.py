@@ -2,6 +2,7 @@ import socket
 import msgpack
 import logging
 import threading
+import ctypes
 import msgpack_numpy as m
 from spider_bot import enums
 from spider_bot.gui import settings
@@ -22,24 +23,26 @@ class Client:
     def get_state(self):
         # 1. send cmd
         self.sock.sendto(
-            msgpack.packb(
-                [enums.CMD_GET_STATE, ],
-                use_bin_type=True),
+            bytes(enums.Header(cmd=enums.CMD_GET_STATE, size=0)),
             self.server_address)
         # 2. recv data
         data, server = self.sock.recvfrom(4096)
-        return msgpack.unpackb(data, raw=False)
+        return enums.GetStateRes.from_buffer_copy(data)
 
     def set_action(self, action):
         # 1. send cmd
+        cmd = enums.SetActionCmd()
+        cmd.header.cmd = enums.CMD_SET_ACTION
+        cmd.header.size = ctypes.sizeof(enums.SetActionCmd) -\
+            ctypes.sizeof(enums.Header)
+        cmd.action = action
+
         self.sock.sendto(
-            msgpack.packb(
-                [enums.CMD_SET_ACTION, action],
-                use_bin_type=True),
+            bytes(cmd),
             self.server_address)
         # 2. recv data
         data, server = self.sock.recvfrom(4096)
-        return msgpack.unpackb(data, raw=False)
+        return enums.ResHeader.from_buffer_copy(data)
 
     def add_notify(self, port=settings.CLIENT_NOTIFY_PORT):
         if self.notify_thread is None:
@@ -57,14 +60,18 @@ class Client:
             self.notify_thread.start()
 
             # 3. send cmd
+            cmd = enums.AddNotifyCmd()
+            cmd.header.cmd = enums.CMD_ADD_NOTIFY
+            cmd.header.size = ctypes.sizeof(enums.AddNotifyCmd) -\
+                ctypes.sizeof(enums.Header)
+            cmd.port = port
+            print("add_notify port:", cmd.port)
             self.sock.sendto(
-                msgpack.packb(
-                    [enums.CMD_ADD_NOTIFY, port],
-                    use_bin_type=True),
+                bytes(cmd),
                 self.server_address)
             # 2. recv data
             data, server = self.sock.recvfrom(4096)
-            return msgpack.unpackb(data, raw=False)
+            return enums.ResHeader.from_buffer_copy(data)
         else:
             LOG.warning('notifier already exist')
 
@@ -78,26 +85,30 @@ class Client:
             self.notify_thread = None
 
             # 2. send cmd
+            cmd = enums.RmNotifyCmd()
+            cmd.header.cmd = enums.CMD_RM_NOTIFY
+            cmd.header.size = ctypes.sizeof(enums.RmNotifyCmd) -\
+                ctypes.sizeof(enums.Header)
+            cmd.port = self.notify_port
             self.sock.sendto(
-                msgpack.packb(
-                    [enums.CMD_RM_NOTIFY, self.notify_port],
-                    use_bin_type=True),
+                bytes(cmd),
                 self.server_address)
             # 2. recv data
             data, server = self.sock.recvfrom(4096)
-            return msgpack.unpackb(data, raw=False)
+            return enums.ResHeader.from_buffer_copy(data)
 
     def listen_notify(self):
         """handler for listen notifys from server"""
         try:
             LOG.info('listen_notify begin')
             while 1:
+                print("listen_notify ->")
                 data, addr = self.notify_sock.recvfrom(
                     g_settings.MAX_PACKET_SIZE)
                 # process notify
+                print("listen_notify <-")
                 if self.notify_handler:
-                    error_code, data = msgpack.unpackb(data, raw=False)
-                    self.notify_handler(error_code, data)
+                    self.notify_handler(enums.GetStateRes.from_buffer_copy(data))
         except OSError:
             pass
         finally:
