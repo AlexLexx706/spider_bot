@@ -102,11 +102,9 @@ class Client:
         try:
             LOG.info('listen_notify begin')
             while 1:
-                print("listen_notify ->")
                 data, addr = self.notify_sock.recvfrom(
                     g_settings.MAX_PACKET_SIZE)
                 # process notify
-                print("listen_notify <-")
                 if self.notify_handler:
                     self.notify_handler(enums.GetStateRes.from_buffer_copy(data))
         except OSError:
