@@ -166,7 +166,6 @@ def test_servo_2():
 
 def test_servo():
     import math
-    import time
     client = Client()
 
     # 1. get model state
@@ -182,9 +181,9 @@ def test_servo():
         client.manage_servo(
             enums.ManageServoCmd.SetAddressCmd, addr, 0).error, ))
 
-    input('start read raw angle:')
+    input('start EnableReadAngles:')
     res = client.manage_servo(
-        enums.ManageServoCmd.ReadRaw,
+        enums.ManageServoCmd.EnableReadAngles,
         addr,
         0).error
     print("res:%s" % (res, ))
@@ -251,7 +250,7 @@ def test_servo():
 
 
 if __name__ == "__main__":
-    test_servo_2()
+    test_servo()
     exit(1)
 
     def notify_handler(code, data):
