@@ -147,15 +147,21 @@ def test_servo_2():
         enums.ManageServoCmd.UnloadServosCmd,
         addr,
         0).error
+    print("res:%s" % (res, ))
 
-    print("unload servo res:%s" % (res, ))
+    input('start EnableReadAngles:')
+    print("res:%s" % (
+        client.manage_servo(
+            enums.ManageServoCmd.EnableReadAngles,
+            addr,
+            0).error, ))
 
     input('start MoveServoSin')
     res = client.manage_servo(
         enums.ManageServoCmd.MoveServoSin,
         addr,
-        0).error
-    print("MoveServoSin res:%s" % (res, ))
+        0.1).error
+    print("res:%s" % (res, ))
 
 
 def test_servo():
@@ -176,26 +182,29 @@ def test_servo():
         client.manage_servo(
             enums.ManageServoCmd.SetAddressCmd, addr, 0).error, ))
 
-    print("ResetLimmits res:%s" % (
-        client.manage_servo(
-            enums.ManageServoCmd.ResetLimmits, addr, 0).error, ))
-
-    input('move servo to max pos:')
+    input('start read raw angle:')
     res = client.manage_servo(
-        enums.ManageServoCmd.SetMaxLimmitCmd,
+        enums.ManageServoCmd.ReadRaw,
         addr,
-        math.pi / 2.0).error
-    print("SetMaxLimmitCmd res:%s" % (res, ))
-
-    if res != 0:
-        return
+        0).error
+    print("res:%s" % (res, ))
 
     input('move servo to min pos:')
     res = client.manage_servo(
         enums.ManageServoCmd.SetMinLimmitCmd,
         addr,
         0).error
-    print("SetMinLimmitCmd res:%s" % (res, ))
+    print("res:%s" % (res, ))
+
+    if res != 0:
+        return
+
+    input('move servo to max pos:')
+    res = client.manage_servo(
+        enums.ManageServoCmd.SetMaxLimmitCmd,
+        addr,
+        math.pi / 2.0).error
+    print("res:%s" % (res, ))
 
     if res != 0:
         return
@@ -206,19 +215,6 @@ def test_servo():
             addr,
             0).error, ))
 
-    # time.sleep(10)
-    # print("DisableReadAngles res:%s" % (
-    #     client.manage_servo(
-    #         enums.ManageServoCmd.DisableReadAngles,
-    #         addr,
-    #         0).error, ))
-
-    # print("LoadServosCmd res:%s" % (
-    #     client.manage_servo(
-    #         enums.ManageServoCmd.LoadServosCmd,
-    #         addr,
-    #         0).error, ))
-
     angle = 0
     input('start move servo to:%s angle' % (angle, ))
     res = client.manage_servo(
@@ -226,7 +222,7 @@ def test_servo():
         addr,
         angle).error
 
-    print("MoveServo res:%s" % (res, ))
+    print("res:%s" % (res, ))
 
     angle = math.pi / 2
     input('start move servo to:%s angle' % (angle, ))
@@ -235,15 +231,15 @@ def test_servo():
         addr,
         angle).error
 
-    print("MoveServo res:%s" % (res, ))
+    print("res:%s" % (res, ))
 
     input('start MoveServoSin')
     res = client.manage_servo(
         enums.ManageServoCmd.MoveServoSin,
         addr,
-        angle).error
+        1).error
 
-    print("MoveServoSin res:%s" % (res, ))
+    print("res:%s" % (res, ))
 
     input('unload servo')
     res = client.manage_servo(
@@ -251,7 +247,7 @@ def test_servo():
         addr,
         angle).error
 
-    print("unload servo res:%s" % (res, ))
+    print("res:%s" % (res, ))
 
 
 if __name__ == "__main__":

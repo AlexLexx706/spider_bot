@@ -96,6 +96,7 @@ class ManageServoCmd(ctypes.Structure):
     DisableReadAngles = 11
     MoveServo = 12
     MoveServoSin = 13
+    ReadRaw = 14
 
 print("Header:%s" % (ctypes.sizeof(Header),))
 print("SetActionCmd:%s" % (ctypes.sizeof(SetActionCmd), ))
