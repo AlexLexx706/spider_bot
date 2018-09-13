@@ -135,6 +135,29 @@ class Client:
         self.sock.close()
 
 
+def test_servo_2():
+    import math
+    import time
+
+    client = Client()
+    input('unload servo')
+
+    addr = 2
+    res = client.manage_servo(
+        enums.ManageServoCmd.UnloadServosCmd,
+        addr,
+        0).error
+
+    print("unload servo res:%s" % (res, ))
+
+    input('start MoveServoSin')
+    res = client.manage_servo(
+        enums.ManageServoCmd.MoveServoSin,
+        addr,
+        0).error
+    print("MoveServoSin res:%s" % (res, ))
+
+
 def test_servo():
     import math
     import time
