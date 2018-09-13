@@ -237,7 +237,7 @@ def test_servo():
     res = client.manage_servo(
         enums.ManageServoCmd.MoveServoSin,
         addr,
-        1).error
+        2).error
 
     print("res:%s" % (res, ))
 
@@ -251,7 +251,7 @@ def test_servo():
 
 
 if __name__ == "__main__":
-    test_servo()
+    test_servo_2()
     exit(1)
 
     def notify_handler(code, data):
