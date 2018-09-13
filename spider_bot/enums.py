@@ -4,6 +4,8 @@ CMD_GET_STATE = 0
 CMD_SET_ACTION = 1
 CMD_ADD_NOTIFY = 2
 CMD_RM_NOTIFY = 3
+CMD_RM_NOTIFY = 4
+
 
 NO_ERROR = 0
 WRONG_COMMAND = 1
@@ -15,6 +17,7 @@ MOVE_FORWARD = 1
 MOVE_BACKWARD = 2
 ROTATE_LEFT = 3
 ROTATE_RIGHT = 4
+
 
 
 # #############################################
@@ -64,10 +67,35 @@ class AddNotifyCmd(ctypes.Structure):
     _fields_ = (
         ('header', Header),
         ('port', ctypes.c_ushort))
-    _pack_ = 0
+    _pack_ = 1
 
 
 RmNotifyCmd = AddNotifyCmd
+
+
+class ManageServoCmd(ctypes.Structure):
+    _fields_ = (
+        ('header', Header),
+        ('cmd', ctypes.c_uint8),
+        ('address', ctypes.c_uint8),
+        ('limmit', ctypes.c_float),)
+    _pack_ = 1
+
+    # commands enums
+    NoneCmd = 0
+    ResetAddressesCmd = 1
+    SetAddressCmd = 2
+    ResetLimmits = 3
+    SetMinLimmitCmd = 4
+    SetMaxLimmitCmd = 5
+    LoadServosCmd = 6
+    UnloadServosCmd = 7
+    EnableSteringCmd = 8
+    DisableSteringCmd = 9
+    EnableReadAngles = 10
+    DisableReadAngles = 11
+    MoveServo = 12
+    MoveServoSin = 13
 
 print("Header:%s" % (ctypes.sizeof(Header),))
 print("SetActionCmd:%s" % (ctypes.sizeof(SetActionCmd), ))
