@@ -251,7 +251,7 @@ def test_servo_enable_sterring():
 if __name__ == "__main__":
     test_servo_calibrate()
     test_servo_enable_sterring()
-    exit(1)
+    exit(0)
 
     def notify_handler(code, data):
         pass
