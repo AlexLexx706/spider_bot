@@ -135,36 +135,7 @@ class Client:
         self.sock.close()
 
 
-def test_servo_2():
-    import math
-    import time
-
-    client = Client()
-    input('unload servo')
-
-    addr = 2
-    res = client.manage_servo(
-        enums.ManageServoCmd.UnloadServosCmd,
-        addr,
-        0).error
-    print("res:%s" % (res, ))
-
-    input('start EnableReadAngles:')
-    print("res:%s" % (
-        client.manage_servo(
-            enums.ManageServoCmd.EnableReadAngles,
-            addr,
-            0).error, ))
-
-    input('start MoveServoSin')
-    res = client.manage_servo(
-        enums.ManageServoCmd.MoveServoSin,
-        addr,
-        0.1).error
-    print("res:%s" % (res, ))
-
-
-def test_servo():
+def test_servo_calibrate():
     import math
     client = Client()
 
@@ -176,7 +147,7 @@ def test_servo():
         client.manage_servo(
             enums.ManageServoCmd.ResetAddressesCmd, 0, 0).error, ))
 
-    addr = 2
+    addr = 0
     print("SetAddressCmd res:%s" % (
         client.manage_servo(
             enums.ManageServoCmd.SetAddressCmd, addr, 0).error, ))
@@ -188,21 +159,23 @@ def test_servo():
         0).error
     print("res:%s" % (res, ))
 
-    input('move servo to min pos:')
+    angle = -math.pi / 4.0
+    input('move servo to min pos:%s' % (angle, ))
     res = client.manage_servo(
         enums.ManageServoCmd.SetMinLimmitCmd,
         addr,
-        0).error
+        angle).error
     print("res:%s" % (res, ))
 
     if res != 0:
         return
 
-    input('move servo to max pos:')
+    angle = math.pi / 4.0
+    input('move servo to max pos:%s' % (angle, ))
     res = client.manage_servo(
         enums.ManageServoCmd.SetMaxLimmitCmd,
         addr,
-        math.pi / 2.0).error
+        angle).error
     print("res:%s" % (res, ))
 
     if res != 0:
@@ -249,8 +222,35 @@ def test_servo():
     print("res:%s" % (res, ))
 
 
+def test_servo_enable_sterring():
+    client = Client()
+    input('unload servo')
+
+    addr = 2
+    res = client.manage_servo(
+        enums.ManageServoCmd.UnloadServosCmd,
+        addr,
+        0).error
+    print("res:%s" % (res, ))
+
+    input('enable sterring:')
+    print("res:%s" % (
+        client.manage_servo(
+            enums.ManageServoCmd.EnableSterring,
+            addr,
+            0).error, ))
+
+    # input('unload servo')
+    # res = client.manage_servo(
+    #     enums.ManageServoCmd.UnloadServosCmd,
+    #     addr,
+    #     0.1).error
+    # print("res:%s" % (res, ))
+
+
 if __name__ == "__main__":
-    test_servo()
+    test_servo_calibrate()
+    test_servo_enable_sterring()
     exit(1)
 
     def notify_handler(code, data):
