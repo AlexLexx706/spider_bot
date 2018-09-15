@@ -96,7 +96,7 @@ class Client:
 
     def manage_servo(self, cmd, address, limmit):
         # 1. send cmd
-        print(cmd, address, limmit)
+        # print(cmd, address, limmit)
         packet = enums.ManageServoCmd()
         packet.header.cmd = enums.CMD_RM_NOTIFY
         packet.header.size = ctypes.sizeof(packet) -\
@@ -139,47 +139,74 @@ def test_servo_calibrate():
     import math
     client = Client()
 
+    calibrations_data = [
+        {'address': 0, "min": -45, 'max': 45},
+        {'address': 1, "min": -90, 'max': 90},
+        {'address': 2, "min": 0, 'max': 100},
+    ]
     # 1. get model state
-    print("get_state res:%s" % (client.get_state(), ))
-
-    # 2. ResetAddressesCmd
-    print("ResetAddressesCmd res:%s" % (
+    print("start calibration servos:")
+    input('reset addresses:')
+    print("res:%s" % (
         client.manage_servo(
             enums.ManageServoCmd.ResetAddressesCmd, 0, 0).error, ))
 
-    addr = 0
-    print("SetAddressCmd res:%s" % (
-        client.manage_servo(
-            enums.ManageServoCmd.SetAddressCmd, addr, 0).error, ))
+    for calib_data in calibrations_data:
+        addr = calib_data['address']
+        input('set address:%s:' % (addr, ))
+        print("res:%s" % (
+            client.manage_servo(
+                enums.ManageServoCmd.SetAddressCmd, addr, 0).error, ))
 
-    input('start EnableReadAngles:')
-    res = client.manage_servo(
-        enums.ManageServoCmd.EnableReadAngles,
-        addr,
-        0).error
-    print("res:%s" % (res, ))
+        input('start EnableReadAngles:')
+        res = client.manage_servo(
+            enums.ManageServoCmd.EnableReadAngles,
+            addr,
+            0).error
+        print("res:%s" % (res, ))
 
-    angle = -math.pi / 4.0
-    input('move servo to min pos:%s' % (angle, ))
-    res = client.manage_servo(
-        enums.ManageServoCmd.SetMinLimmitCmd,
-        addr,
-        angle).error
-    print("res:%s" % (res, ))
+        angle = calib_data['min']
+        input('calibrate min, turn servo to angle:%s' % (angle, ))
+        res = client.manage_servo(
+            enums.ManageServoCmd.SetMinLimmitCmd,
+            addr,
+            angle / 180. * math.pi).error
+        print("res:%s" % (res, ))
 
-    if res != 0:
-        return
+        if res != 0:
+            return
 
-    angle = math.pi / 4.0
-    input('move servo to max pos:%s' % (angle, ))
-    res = client.manage_servo(
-        enums.ManageServoCmd.SetMaxLimmitCmd,
-        addr,
-        angle).error
-    print("res:%s" % (res, ))
+        angle = calib_data['max']
+        input('calibrate max, turn servo to angle:%s' % (angle, ))
+        res = client.manage_servo(
+            enums.ManageServoCmd.SetMaxLimmitCmd,
+            addr,
+            angle / 180.0 * math.pi).error
+        print("res:%s" % (res, ))
 
-    if res != 0:
-        return
+        if res != 0:
+            return
+
+        # test servo calibration:
+        print('test servo calibration:')
+
+        angle = calib_data['min']
+        input('move servo %d to:%s angle' % (addr, angle, ))
+        res = client.manage_servo(
+            enums.ManageServoCmd.MoveServo,
+            addr,
+            angle / 180.0 * math.pi).error
+
+        print("res:%s" % (res, ))
+
+        angle = calib_data['max']
+        input('move servo %s to:%s angle' % (addr, angle, ))
+        res = client.manage_servo(
+            enums.ManageServoCmd.MoveServo,
+            addr,
+            angle / 180.0 * math.pi).error
+
+        print("res:%s" % (res, ))
 
     input('enable read angles:')
     print(" res:%s" % (
@@ -187,32 +214,6 @@ def test_servo_calibrate():
             enums.ManageServoCmd.EnableReadAngles,
             addr,
             0).error, ))
-
-    angle = 0
-    input('start move servo to:%s angle' % (angle, ))
-    res = client.manage_servo(
-        enums.ManageServoCmd.MoveServo,
-        addr,
-        angle).error
-
-    print("res:%s" % (res, ))
-
-    angle = math.pi / 2
-    input('start move servo to:%s angle' % (angle, ))
-    res = client.manage_servo(
-        enums.ManageServoCmd.MoveServo,
-        addr,
-        angle).error
-
-    print("res:%s" % (res, ))
-
-    input('start MoveServoSin')
-    res = client.manage_servo(
-        enums.ManageServoCmd.MoveServoSin,
-        addr,
-        2).error
-
-    print("res:%s" % (res, ))
 
     input('unload servo')
     res = client.manage_servo(
@@ -245,6 +246,16 @@ def test_servo_enable_sterring():
 def test_servo_read_angles():
     client = Client()
     addr = 0
+    input('unload servo')
+
+    addr = 2
+    res = client.manage_servo(
+        enums.ManageServoCmd.UnloadServosCmd,
+        addr,
+        0).error
+    print("res:%s" % (res, ))
+
+
     input('start EnableReadAngles:')
     print("res:%s" % (client.manage_servo(
         enums.ManageServoCmd.EnableReadAngles,
@@ -253,9 +264,9 @@ def test_servo_read_angles():
 
 
 if __name__ == "__main__":
-    test_servo_read_angles()
-    exit(0)
-    test_servo_calibrate()
+    # test_servo_read_angles()
+    # exit(0)
+    # test_servo_calibrate()
     test_servo_enable_sterring()
     exit(0)
 
