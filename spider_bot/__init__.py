@@ -35,6 +35,12 @@ class SpiderBot(node.Node):
             show_geometry=show_geometry,
             pos=(length / 2.0, 0.0, width / 2.0))
 
+        self.rear_right_leg = leg.Leg(
+            parent=self,
+            show_center=show_center,
+            show_geometry=show_geometry,
+            pos=(-length / 2.0, 0.0, width / 2.0))
+
         self.front_left_leg = leg.Leg(
             parent=self,
             axis=(-1, 0, 0),
@@ -44,16 +50,11 @@ class SpiderBot(node.Node):
 
         self.rear_left_leg = leg.Leg(
             parent=self,
+            axis=(-1, 0, 0),
             show_center=show_center,
             show_geometry=show_geometry,
             pos=(-length / 2.0, 0.0, -width / 2.0))
 
-        self.rear_right_leg = leg.Leg(
-            parent=self,
-            axis=(-1, 0, 0),
-            show_center=show_center,
-            show_geometry=show_geometry,
-            pos=(-length / 2.0, 0.0, width / 2.0))
 
         # use only in client part
         if show_geometry:

@@ -16,12 +16,6 @@ class Scene(scene.Scene):
         self.client.add_notify()
 
     def notify_handler(self, data):
-        data.body_mat
-        data.front_right_leg
-        data.front_left_leg
-        data.rear_right_leg
-        data.rear_left_leg
-
         mat = np.array(data.body_mat)
         mat.shape = (4, 4)
 
