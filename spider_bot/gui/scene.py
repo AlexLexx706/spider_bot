@@ -3,6 +3,7 @@ import spider_bot
 from spider_bot.gui import client
 import numpy as np
 
+
 class Scene(scene.Scene):
     def __init__(self):
         scene.Scene.__init__(self)
@@ -25,7 +26,18 @@ class Scene(scene.Scene):
         mat.shape = (4, 4)
 
         self.bot._matrix = mat
-        self.bot.front_right_leg.move_end(list(data.front_right_leg.end))
-        self.bot.front_left_leg.move_end(list(data.front_left_leg.end))
-        self.bot.rear_right_leg.move_end(list(data.rear_right_leg.end))
-        self.bot.rear_left_leg.move_end(list(data.rear_left_leg.end))
+        self.bot.front_right_leg.p_0.ang_y = data.front_right_leg.a_0
+        self.bot.front_right_leg.p_1.ang_x = data.front_right_leg.a_1
+        self.bot.front_right_leg.p_2.ang_x = data.front_right_leg.a_2
+
+        self.bot.front_left_leg.p_0.ang_y = data.front_left_leg.a_0
+        self.bot.front_left_leg.p_1.ang_x = data.front_left_leg.a_1
+        self.bot.front_left_leg.p_2.ang_x = data.front_left_leg.a_2
+
+        self.bot.rear_right_leg.p_0.ang_y = data.rear_right_leg.a_0
+        self.bot.rear_right_leg.p_1.ang_x = data.rear_right_leg.a_1
+        self.bot.rear_right_leg.p_2.ang_x = data.rear_right_leg.a_2
+
+        self.bot.rear_left_leg.p_0.ang_y = data.rear_right_leg.a_0
+        self.bot.rear_left_leg.p_1.ang_x = data.rear_right_leg.a_1
+        self.bot.rear_left_leg.p_2.ang_x = data.rear_right_leg.a_2

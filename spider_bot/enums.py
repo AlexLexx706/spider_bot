@@ -40,7 +40,9 @@ class LegDesc(ctypes.Structure):
         ('shoulder_offset', ctypes.c_float),
         ('shoulder_lenght', ctypes.c_float),
         ('forearm_lenght', ctypes.c_float),
-        ('end', ctypes.c_float * 3),)
+        ('a_0', ctypes.c_float),
+        ('a_1', ctypes.c_float),
+        ('a_2', ctypes.c_float),)
     _pack_ = 1
 
 
@@ -51,8 +53,7 @@ class GetStateRes(ctypes.Structure):
         ('front_right_leg', LegDesc),
         ('front_left_leg', LegDesc),
         ('rear_right_leg', LegDesc),
-        ('rear_left_leg', LegDesc),
-        ('action', ctypes.c_int))
+        ('rear_left_leg', LegDesc))
     _pack_ = 1
 
 
@@ -96,7 +97,6 @@ class ManageServoCmd(ctypes.Structure):
     DisableReadAngles = 11
     MoveServo = 12
     MoveServoSin = 13
-    EnableSterring = 14
 
 print("Header:%s" % (ctypes.sizeof(Header),))
 print("SetActionCmd:%s" % (ctypes.sizeof(SetActionCmd), ))

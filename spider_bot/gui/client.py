@@ -181,7 +181,8 @@ def test_servo_calibrate():
     if res != 0:
         return
 
-    print("EnableReadAngles res:%s" % (
+    input('enable read angles:')
+    print(" res:%s" % (
         client.manage_servo(
             enums.ManageServoCmd.EnableReadAngles,
             addr,
