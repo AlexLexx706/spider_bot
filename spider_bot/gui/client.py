@@ -246,6 +246,16 @@ def test_servo_enable_sterring():
 def test_servo_read_angles():
     client = Client()
     addr = 0
+    input('unload servo')
+
+    addr = 2
+    res = client.manage_servo(
+        enums.ManageServoCmd.UnloadServosCmd,
+        addr,
+        0).error
+    print("res:%s" % (res, ))
+
+
     input('start EnableReadAngles:')
     print("res:%s" % (client.manage_servo(
         enums.ManageServoCmd.EnableReadAngles,
