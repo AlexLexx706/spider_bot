@@ -5,7 +5,7 @@ CMD_SET_ACTION = 1
 CMD_ADD_NOTIFY = 2
 CMD_RM_NOTIFY = 3
 CMD_RM_NOTIFY = 4
-
+CMD_SET_LEG_GEOMETRY = 5
 
 NO_ERROR = 0
 WRONG_COMMAND = 1
@@ -17,7 +17,6 @@ MOVE_FORWARD = 1
 MOVE_BACKWARD = 2
 ROTATE_LEFT = 3
 ROTATE_RIGHT = 4
-
 
 
 # #############################################
@@ -34,12 +33,18 @@ class ResHeader(ctypes.Structure):
     _pack_ = 1
 
 
-class LegDesc(ctypes.Structure):
+class LegGeometry(ctypes.Structure):
     _fields_ = (
         ('pos', ctypes.c_float * 3),
         ('shoulder_offset', ctypes.c_float),
         ('shoulder_lenght', ctypes.c_float),
-        ('forearm_lenght', ctypes.c_float),
+        ('forearm_lenght', ctypes.c_float),)
+    _pack_ = 1
+
+
+class LegDesc(ctypes.Structure):
+    _fields_ = (
+        ('geometry', LegGeometry),
         ('a_0', ctypes.c_float),
         ('a_1', ctypes.c_float),
         ('a_2', ctypes.c_float),)
@@ -97,6 +102,15 @@ class ManageServoCmd(ctypes.Structure):
     DisableReadAngles = 11
     MoveServo = 12
     MoveServoSin = 13
+
+
+class SetLegGeometry(ctypes.Structure):
+    _fields_ = (
+        ('header', Header),
+        ('cmd', ctypes.c_uint32),
+        ('geometry', LegGeometry),)
+    _pack_ = 1
+
 
 print("Header:%s" % (ctypes.sizeof(Header),))
 print("SetActionCmd:%s" % (ctypes.sizeof(SetActionCmd), ))
