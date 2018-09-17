@@ -107,7 +107,7 @@ class ManageServoCmd(ctypes.Structure):
 class SetLegGeometry(ctypes.Structure):
     _fields_ = (
         ('header', Header),
-        ('cmd', ctypes.c_uint32),
+        ('leg_num', ctypes.c_uint32),
         ('geometry', LegGeometry),)
     _pack_ = 1
 

@@ -134,6 +134,21 @@ class Client:
             self.rm_notify()
         self.sock.close()
 
+    def set_leg_geometry(self, leg_num, leg_geometry):
+        cmd = enums.SetLegGeometry()
+        cmd.header.cmd = enums.CMD_SET_LEG_GEOMETRY
+        cmd.header.size = ctypes.sizeof(enums.SetLegGeometry) -\
+            ctypes.sizeof(enums.Header)
+        cmd.leg_num = leg_num
+        cmd.geometry = leg_geometry
+
+        self.sock.sendto(
+            bytes(cmd),
+            self.server_address)
+        # 2. recv data
+        data, server = self.sock.recvfrom(4096)
+        return enums.ResHeader.from_buffer_copy(data)
+
 
 def test_servo_calibrate():
     import math
@@ -255,7 +270,6 @@ def test_servo_read_angles():
         0).error
     print("res:%s" % (res, ))
 
-
     input('start EnableReadAngles:')
     print("res:%s" % (client.manage_servo(
         enums.ManageServoCmd.EnableReadAngles,
@@ -263,7 +277,59 @@ def test_servo_read_angles():
         0).error, ))
 
 
+def test_set_leg_geometry():
+    client = Client()
+    input('get bot state:')
+    res = client.get_state()
+    print("res:%s" % (res.header.error, ))
+
+    if (res.header.error != enums.NO_ERROR):
+        return
+    geometry = res.front_right_leg.geometry
+    print(
+        "geometry: pos:%s shoulder_offset:%s "
+        "shoulder_lenght:%s forearm_lenght:%s" % (
+            [v for v in geometry.pos],
+            geometry.shoulder_offset,
+            geometry.shoulder_lenght,
+            geometry.forearm_lenght))
+    # length in santimetrs
+    shoulder_offset = 8
+    shoulder_lenght = 8
+    forearm_lenght = 4
+
+    legs_geometry = [
+        enums.LegGeometry(
+            (enums.ctypes.c_float * 3)(10, -2, 5),
+            shoulder_offset,
+            shoulder_lenght,
+            forearm_lenght),
+        enums.LegGeometry(
+            (enums.ctypes.c_float * 3)(-10, -2, 5),
+            shoulder_offset,
+            shoulder_lenght,
+            forearm_lenght),
+        enums.LegGeometry(
+            (enums.ctypes.c_float * 3)(10, -2, -5),
+            shoulder_offset,
+            shoulder_lenght,
+            forearm_lenght),
+        enums.LegGeometry(
+            (enums.ctypes.c_float * 3)(-10, -2, -5),
+            shoulder_offset,
+            shoulder_lenght,
+            forearm_lenght)
+    ]
+    input('set legs geometry:')
+    for leg_num, leg_geometry in enumerate(legs_geometry):
+        print("set_leg geometry leg_num:%s res:%s" % (
+            leg_num,
+            client.set_leg_geometry(leg_num, leg_geometry).error))
+
+
 if __name__ == "__main__":
+    test_set_leg_geometry()
+    exit(0)
     # test_servo_read_angles()
     # exit(0)
     # test_servo_calibrate()
