@@ -87,6 +87,10 @@ class ManageServoCmd(ctypes.Structure):
         ('limmit', ctypes.c_float),)
     _pack_ = 1
 
+    #
+    # broadcast address, used in EnableReadAngles for read all servos
+    BroadcastAddr = 0xFE
+
     # commands enums
     NoneCmd = 0
     ResetAddressesCmd = 1
@@ -102,6 +106,52 @@ class ManageServoCmd(ctypes.Structure):
     DisableReadAngles = 11
     MoveServo = 12
     MoveServoSin = 13
+
+
+class ManageServoRes(ctypes.Structure):
+    _fields_ = (
+        ('header', Header),
+        ('error', ctypes.c_int32),
+        ('state', ctypes.c_int32))
+    _pack_ = 1
+
+    # states
+    NoneState = 0
+    ReadAnglesState = 1
+    MoveSinState = 2
+    CalibrationProgressState = 3
+    CompleteState = 4
+    ReadRawState = 5
+    SterringsProgress = 6
+
+    ErrorState = 7
+    ErrorNotActive = 8
+    ErrorWrongAddress = 9
+    ErrorWrondData = 10
+    ErrorWrongServoPos = 11
+    ErrorNotCalibrated = 12
+
+    state_map = {
+        NoneState: "NoneState",
+        ReadAnglesState: "ReadAnglesState",
+        MoveSinState: "MoveSinState",
+        CalibrationProgressState: "CalibrationProgressState",
+        CompleteState: "CompleteState",
+        ReadRawState: "ReadRawState",
+        SterringsProgress: "SterringsProgress",
+        ErrorState: "ErrorState",
+        ErrorNotActive: "ErrorNotActive",
+        ErrorWrongAddress: "ErrorWrongAddress",
+        ErrorWrondData: "ErrorWrondData",
+        ErrorWrongServoPos: "ErrorWrongServoPos",
+        ErrorNotCalibrated: "ErrorNotCalibrated"}
+
+    @property
+    def error_desc(self):
+        return "error:%s state:%s %s" % (
+            self.error,
+            self.state,
+            self.state_map.get(self.state, "unknown state"))
 
 
 class SetLegGeometry(ctypes.Structure):
