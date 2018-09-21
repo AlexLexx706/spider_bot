@@ -153,6 +153,14 @@ class Client:
 def test_servo_calibrate():
     import math
     client = Client()
+    cond = input('Start from last bad calibration:type yes or no?')
+    first = 0
+    if 'y' in cond.lower():
+        try:
+            with open('calib_num.txt', 'r') as file:
+                first = int(file.read())
+        except FileNotFoundError as e:
+            print(e)
 
     calibrations_data = [
         {'address': 0, "min": -45, 'max': 45, "name": "front right leg 0"},
@@ -175,7 +183,13 @@ def test_servo_calibrate():
         client.manage_servo(
             enums.ManageServoCmd.ResetAddressesCmd, 0, 0).error_desc, ))
 
-    for calib_data in calibrations_data:
+    for index, calib_data in enumerate(calibrations_data):
+        if index < first:
+            continue
+        # save last servo num:
+        with open('calib_num.txt', 'w') as file:
+            file.write(str(index))
+
         addr = calib_data['address']
         input('set address:%s, %s:' % (addr, calib_data['name']))
         print("res:%s\n" % (
