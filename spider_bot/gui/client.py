@@ -155,9 +155,18 @@ def test_servo_calibrate():
     client = Client()
 
     calibrations_data = [
-        {'address': 0, "min": -45, 'max': 45},
-        {'address': 1, "min": -90, 'max': 90},
-        {'address': 2, "min": 0, 'max': 100},
+        {'address': 4, "min": -45, 'max': 45, "name": "front right leg 0"},
+        {'address': 1, "min": -90, 'max': 90, "name": "front right leg 1"},
+        {'address': 2, "min": 0, 'max': 100, "name": "front right leg 2"},
+        {'address': 3, "min": -45, 'max': 45, "name": "rear right leg 0"},
+        {'address': 4, "min": -90, 'max': 90, "name": "rear right leg 1"},
+        {'address': 5, "min": 0, 'max': 100, "name": "rear right leg 2"},
+        {'address': 6, "min": -45, 'max': 45, "name": "front left leg 0"},
+        {'address': 7, "min": -90, 'max': 90, "name": "front left leg 1"},
+        {'address': 8, "min": 0, 'max': 100, "name": "front left leg 2"},
+        {'address': 9, "min": -45, 'max': 45, "name": "rear left leg 0"},
+        {'address': 10, "min": -90, 'max': 90, "name": "rear left leg 1"},
+        {'address': 11, "min": 0, 'max': 100, "name": "rear left leg 2"},
     ]
     # 1. get model state
     print("start calibration servos:")
@@ -168,12 +177,12 @@ def test_servo_calibrate():
 
     for calib_data in calibrations_data:
         addr = calib_data['address']
-        input('set address:%s:' % (addr, ))
+        input('set address:%s, %s:' % (addr, calib_data['name']))
         print("res:%s" % (
             client.manage_servo(
                 enums.ManageServoCmd.SetAddressCmd, addr, 0).error, ))
 
-        input('start EnableReadAngles:')
+        input('start EnableReadAngles, %s:' % (calib_data['name'], ))
         res = client.manage_servo(
             enums.ManageServoCmd.EnableReadAngles,
             addr,
@@ -181,7 +190,8 @@ def test_servo_calibrate():
         print("res:%s" % (res, ))
 
         angle = calib_data['min']
-        input('calibrate min, turn servo to angle:%s' % (angle, ))
+        input('calibrate min, turn servo to angle:%s, %s:' % (
+            angle, calib_data['name']))
         res = client.manage_servo(
             enums.ManageServoCmd.SetMinLimmitCmd,
             addr,
@@ -192,7 +202,8 @@ def test_servo_calibrate():
             return
 
         angle = calib_data['max']
-        input('calibrate max, turn servo to angle:%s' % (angle, ))
+        input('calibrate max, turn servo to angle:%s, %s:' % (
+            angle, calib_data['name']))
         res = client.manage_servo(
             enums.ManageServoCmd.SetMaxLimmitCmd,
             addr,
@@ -203,10 +214,11 @@ def test_servo_calibrate():
             return
 
         # test servo calibration:
-        print('test servo calibration:')
+        print('test servo calibration, %s:' % (calib_data['name'], ))
 
         angle = calib_data['min']
-        input('move servo %d to:%s angle' % (addr, angle, ))
+        input('move servo %d to:%s angle, %s' % (
+            addr, angle, calib_data['name']))
         res = client.manage_servo(
             enums.ManageServoCmd.MoveServo,
             addr,
@@ -215,7 +227,8 @@ def test_servo_calibrate():
         print("res:%s" % (res, ))
 
         angle = calib_data['max']
-        input('move servo %s to:%s angle' % (addr, angle, ))
+        input('move servo %s to:%s angle, %s' % (
+            addr, angle, calib_data['name']))
         res = client.manage_servo(
             enums.ManageServoCmd.MoveServo,
             addr,
@@ -328,12 +341,12 @@ def test_set_leg_geometry():
 
 
 if __name__ == "__main__":
-    test_set_leg_geometry()
-    exit(0)
+    # test_set_leg_geometry()
+    # exit(0)
     # test_servo_read_angles()
     # exit(0)
-    # test_servo_calibrate()
-    test_servo_enable_sterring()
+    test_servo_calibrate()
+    #test_servo_enable_sterring()
     exit(0)
 
     def notify_handler(code, data):
