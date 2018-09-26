@@ -22,14 +22,16 @@ ROTATE_RIGHT = 4
 # #############################################
 class Header(ctypes.Structure):
     _fields_ = (
-        ('cmd', ctypes.c_int),
-        ('size', ctypes.c_uint))
+        ('cmd', ctypes.c_int32),
+        ('resp_flag', ctypes.c_int8),
+        ('size', ctypes.c_uint32))
+    _pack_ = 1
 
 
 class ResHeader(ctypes.Structure):
     _fields_ = (
         ('header', Header),
-        ('error', ctypes.c_int))
+        ('error', ctypes.c_int32))
     _pack_ = 1
 
 
@@ -65,14 +67,14 @@ class GetStateRes(ctypes.Structure):
 class SetActionCmd(ctypes.Structure):
     _fields_ = (
         ('header', Header),
-        ('action', ctypes.c_int))
+        ('action', ctypes.c_int32))
     _pack_ = 1
 
 
 class AddNotifyCmd(ctypes.Structure):
     _fields_ = (
         ('header', Header),
-        ('port', ctypes.c_ushort))
+        ('port', ctypes.c_uint16))
     _pack_ = 1
 
 

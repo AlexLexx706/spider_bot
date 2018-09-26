@@ -25,10 +25,11 @@ class Client:
         data, server = self.sock.recvfrom(4096)
         return enums.GetStateRes.from_buffer_copy(data)
 
-    def set_action(self, action):
+    def set_action(self, action, get_responce=False):
         # 1. send cmd
         cmd = enums.SetActionCmd()
         cmd.header.cmd = enums.CMD_SET_ACTION
+        cmd.header.resp_flag = get_responce
         cmd.header.size = ctypes.sizeof(enums.SetActionCmd) -\
             ctypes.sizeof(enums.Header)
         cmd.action = action
@@ -36,11 +37,13 @@ class Client:
         self.sock.sendto(
             bytes(cmd),
             self.server_address)
-        # 2. recv data
-        data, server = self.sock.recvfrom(4096)
-        return enums.ResHeader.from_buffer_copy(data)
 
-    def add_notify(self, port=settings.CLIENT_NOTIFY_PORT):
+        if get_responce:
+            # 2. recv data
+            data, server = self.sock.recvfrom(4096)
+            return enums.ResHeader.from_buffer_copy(data)
+
+    def add_notify(self, port=settings.CLIENT_NOTIFY_PORT, get_responce=False):
         if self.notify_thread is None:
             LOG.info('add_notify port:%s' % (port, ))
             # 1. create socket for listen
@@ -58,6 +61,7 @@ class Client:
             # 3. send cmd
             cmd = enums.AddNotifyCmd()
             cmd.header.cmd = enums.CMD_ADD_NOTIFY
+            cmd.header.resp_flag = get_responce
             cmd.header.size = ctypes.sizeof(enums.AddNotifyCmd) -\
                 ctypes.sizeof(enums.Header)
             cmd.port = port
@@ -65,13 +69,15 @@ class Client:
             self.sock.sendto(
                 bytes(cmd),
                 self.server_address)
-            # 2. recv data
-            data, server = self.sock.recvfrom(4096)
-            return enums.ResHeader.from_buffer_copy(data)
+
+            if get_responce:
+                # 4. recv data
+                data, server = self.sock.recvfrom(4096)
+                return enums.ResHeader.from_buffer_copy(data)
         else:
             LOG.warning('notifier already exist')
 
-    def rm_notify(self):
+    def rm_notify(self, get_responce=False):
         if self.notify_thread is not None:
             print('rm_notify port:%s' % (self.notify_port, ))
             # 1. stop thread
@@ -84,21 +90,25 @@ class Client:
             # 2. send cmd
             cmd = enums.RmNotifyCmd()
             cmd.header.cmd = enums.CMD_RM_NOTIFY
+            cmd.header.resp_flag = get_responce
             cmd.header.size = ctypes.sizeof(enums.RmNotifyCmd) -\
                 ctypes.sizeof(enums.Header)
             cmd.port = self.notify_port
             self.sock.sendto(
                 bytes(cmd),
                 self.server_address)
-            # 2. recv data
-            data, server = self.sock.recvfrom(4096)
-            return enums.ResHeader.from_buffer_copy(data)
 
-    def manage_servo(self, cmd, address, limmit):
+            if get_responce:
+                # 2. recv data
+                data, server = self.sock.recvfrom(4096)
+                return enums.ResHeader.from_buffer_copy(data)
+
+    def manage_servo(self, cmd, address, limmit, get_responce=True):
         # 1. send cmd
         # print(cmd, address, limmit)
         packet = enums.ManageServoCmd()
         packet.header.cmd = enums.CMD_RM_NOTIFY
+        packet.header.resp_flag = get_responce
         packet.header.size = ctypes.sizeof(packet) -\
             ctypes.sizeof(enums.Header)
         packet.cmd = cmd
@@ -108,9 +118,11 @@ class Client:
         self.sock.sendto(
             bytes(packet),
             self.server_address)
-        # 2. recv data
-        data, server = self.sock.recvfrom(4096)
-        return enums.ManageServoRes.from_buffer_copy(data)
+
+        if get_responce:
+            # 2. recv data
+            data, server = self.sock.recvfrom(4096)
+            return enums.ManageServoRes.from_buffer_copy(data)
 
     def listen_notify(self):
         """handler for listen notifys from server"""
@@ -134,9 +146,10 @@ class Client:
             self.rm_notify()
         self.sock.close()
 
-    def set_leg_geometry(self, leg_num, leg_geometry):
+    def set_leg_geometry(self, leg_num, leg_geometry, get_responce=False):
         cmd = enums.SetLegGeometry()
         cmd.header.cmd = enums.CMD_SET_LEG_GEOMETRY
+        cmd.header.resp_flag = get_responce
         cmd.header.size = ctypes.sizeof(enums.SetLegGeometry) -\
             ctypes.sizeof(enums.Header)
         cmd.leg_num = leg_num
@@ -145,9 +158,11 @@ class Client:
         self.sock.sendto(
             bytes(cmd),
             self.server_address)
-        # 2. recv data
-        data, server = self.sock.recvfrom(4096)
-        return enums.ResHeader.from_buffer_copy(data)
+
+        if get_responce:
+            # 2. recv data
+            data, server = self.sock.recvfrom(4096)
+            return enums.ResHeader.from_buffer_copy(data)
 
 
 def test_servo_calibrate():
@@ -177,11 +192,13 @@ def test_servo_calibrate():
         {'address': 11, "min": 0, 'max': 100, "name": "rear left leg 2"},
     ]
     # 1. get model state
-    print("start calibration servos:")
-    input('reset addresses:')
-    print("res:%s\n" % (
-        client.manage_servo(
-            enums.ManageServoCmd.ResetAddressesCmd, 0, 0).error_desc, ))
+    print("start calibration servos, first:%s" % (first, ))
+
+    if first == 0:
+        input('reset addresses:')
+        print("res:%s\n" % (
+            client.manage_servo(
+                enums.ManageServoCmd.ResetAddressesCmd, 0, 0).error_desc, ))
 
     for index, calib_data in enumerate(calibrations_data):
         if index < first:
@@ -357,10 +374,10 @@ def test_set_leg_geometry():
 if __name__ == "__main__":
     # test_set_leg_geometry()
     # exit(0)
-    # test_servo_read_angles()
-    # exit(0)
-    test_servo_calibrate()
-    #test_servo_enable_sterring()
+    test_servo_read_angles()
+    exit(0)
+    #test_servo_calibrate()
+    test_servo_enable_sterring()
     exit(0)
 
     def notify_handler(code, data):
