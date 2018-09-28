@@ -1,6 +1,6 @@
 from engine_3d import scene
 import spider_bot
-from spider_bot.gui import client
+import spider_bot_client as client
 import numpy as np
 
 
